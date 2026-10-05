@@ -2,213 +2,2326 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>am — activate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<title>Omni Azure Asahiro · Official</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
 <style>
 :root {
-  --bg: #0a0a0b;
-  --panel: #111113;
-  --line: #232326;
-  --txt: #e8e8ea;
-  --dim: #8a8a91;
-  --acc: #5ec269;
-  --acc-dim: #2c4a30;
-  --red: #e05252;
+  --bg: #050507;
+  --bg-elevated: #0a0a0e;
+  --panel: rgba(18, 18, 24, 0.65);
+  --panel-solid: #121218;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(124, 255, 178, 0.35);
+  --txt: #f4f4f7;
+  --txt-2: #a8a8b4;
+  --txt-3: #6a6a78;
+  --txt-4: #46465a;
+  --acc: #7cffb2;
+  --acc-2: #22d3a0;
+  --acc-3: #0e8f6a;
+  --acc-glow: rgba(124, 255, 178, 0.28);
+  --acc-soft: rgba(124, 255, 178, 0.08);
+  --red: #ff5f6d;
+  --red-soft: rgba(255, 95, 109, 0.1);
+  --amber: #ffcb6b;
+  --amber-soft: rgba(255, 203, 107, 0.1);
+  --blue: #6bb8ff;
+  --blue-soft: rgba(107, 184, 255, 0.08);
+  --violet: #b48bff;
+  --violet-soft: rgba(180, 139, 255, 0.1);
+  --pink: #ff6b9d;
+  --pink-soft: rgba(255, 107, 157, 0.1);
+  --radius: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --header-h: 64px;
 }
-* { margin: 0; padding: 0; box-sizing: border-box }
-body {
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
   background: var(--bg);
   color: var(--txt);
-  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
-  font-size: 13px;
-  line-height: 1.6;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.55;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 48px 16px;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-.wrap { width: 100%; max-width: 460px }
 
-header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px }
-header h1 { font-size: 15px; font-weight: 600; letter-spacing: .02em }
-header h1 span { color: var(--acc) }
-header p { color: var(--dim); font-size: 12px; margin-top: 2px }
+body.locked { overflow: hidden; }
 
-.steps { display: flex; gap: 0; margin-bottom: 18px; font-size: 11px }
-.steps div { flex: 1; padding: 6px 0; border-bottom: 2px solid var(--line); color: var(--dim) }
-.steps div.on { border-color: var(--acc); color: var(--txt) }
-.steps div.done { border-color: var(--acc-dim); color: var(--acc) }
+.bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bg-aurora { position: absolute; inset: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 20% 30%, rgba(124, 255, 178, 0.12) 0%, transparent 35%), radial-gradient(circle at 80% 20%, rgba(107, 184, 255, 0.08) 0%, transparent 35%), radial-gradient(circle at 50% 80%, rgba(180, 139, 255, 0.06) 0%, transparent 40%); filter: blur(70px); animation: auroraMove 28s ease-in-out infinite alternate; }
+@keyframes auroraMove { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(4%, 6%) rotate(-3deg); } }
+.bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 56px 56px; mask-image: radial-gradient(ellipse 80% 55% at 50% 25%, #000 0%, transparent 85%); -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 25%, #000 0%, transparent 85%); }
+.bg-noise { position: absolute; inset: 0; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: overlay; }
 
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  padding: 18px;
-  margin-bottom: 14px;
+#particles, #confetti { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#confetti { z-index: 9998; }
+
+.loader { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 36px; transition: opacity 0.9s var(--ease), visibility 0.9s var(--ease); }
+.loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader__rings { position: relative; width: 152px; height: 152px; display: flex; align-items: center; justify-content: center; }
+.loader__ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid transparent; }
+.loader__ring:nth-child(1) { border-top-color: var(--acc); border-right-color: rgba(124, 255, 178, 0.3); animation: ringSpin 1.6s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite; box-shadow: 0 0 28px -6px var(--acc-glow); }
+.loader__ring:nth-child(2) { inset: 16px; border-bottom-color: var(--blue); border-left-color: rgba(107, 184, 255, 0.25); animation: ringSpin 2.1s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite reverse; }
+.loader__ring:nth-child(3) { inset: 32px; border-top-color: var(--violet); border-right-color: rgba(180, 139, 255, 0.2); animation: ringSpin 2.6s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite; opacity: 0.75; }
+@keyframes ringSpin { to { transform: rotate(360deg); } }
+.loader__core { position: relative; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 45%, #0e8f6a 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 48px var(--acc-glow), 0 0 0 1px rgba(255, 255, 255, 0.15) inset, 0 4px 12px rgba(0, 0, 0, 0.3); animation: corePulse 2.4s ease-in-out infinite; overflow: hidden; }
+.loader__core img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes corePulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 48px var(--acc-glow), 0 0 0 1px rgba(255, 255, 255, 0.15) inset; } 50% { transform: scale(1.05); box-shadow: 0 0 64px var(--acc-glow), 0 0 0 1px rgba(255, 255, 255, 0.2) inset; } }
+.loader__text { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.loader__title { font-size: 15px; font-weight: 700; letter-spacing: 0.01em; color: var(--txt); }
+.loader__subtitle { font-size: 11px; color: var(--txt-3); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+.loader__dots::after { content: ''; display: inline-block; width: 1.6em; text-align: left; animation: dots 1.6s steps(4, end) infinite; }
+@keyframes dots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
+.loader__bar { width: 180px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.05); overflow: hidden; margin-top: 8px; position: relative; }
+.loader__bar-fill { height: 100%; background: linear-gradient(90deg, var(--acc), var(--blue), var(--violet)); border-radius: 3px; width: 0%; transition: width 0.35s var(--ease); box-shadow: 0 0 14px var(--acc-glow); }
+.loader__percent { font-family: var(--mono); font-size: 11px; color: var(--txt-4); margin-top: 6px; letter-spacing: 0.05em; }
+
+.header { position: sticky; top: 0; z-index: 100; height: var(--header-h); background: rgba(5, 5, 7, 0.78); backdrop-filter: blur(28px) saturate(1.5); -webkit-backdrop-filter: blur(28px) saturate(1.5); border-bottom: 1px solid var(--border); }
+.header__inner { max-width: 560px; margin: 0 auto; height: 100%; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; cursor: pointer; transition: opacity 0.2s ease; }
+.brand:hover { opacity: 0.9; }
+.brand__logo { position: relative; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 50%, #0e8f6a 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px -4px var(--acc-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35); overflow: hidden; }
+.brand__logo img { width: 100%; height: 100%; object-fit: cover; }
+.brand__logo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.35) 50%, transparent 75%); transform: translateX(-100%); animation: shine 5s ease-in-out infinite; pointer-events: none; }
+@keyframes shine { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+.brand__info h1 { font-size: 14.5px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
+.brand__info p { font-size: 10.5px; color: var(--txt-3); margin-top: 1px; }
+.brand__info p b { color: var(--acc); font-weight: 600; }
+.header__actions { display: flex; align-items: center; gap: 6px; }
+.icon-btn { width: 38px; height: 38px; border-radius: 11px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--txt-2); cursor: pointer; transition: all 0.22s var(--ease); position: relative; }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.07); color: var(--txt); border-color: var(--border-hover); }
+.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn.muted { color: var(--txt-4); opacity: 0.55; }
+.icon-btn.has-badge::after { content: ''; position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--acc); border: 2px solid var(--bg); box-shadow: 0 0 8px var(--acc); animation: pollPulse 1.6s ease-in-out infinite; }
+@keyframes pollPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.82); } }
+
+.drawer-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0, 0, 0, 0.72); backdrop-filter: blur(6px); opacity: 0; visibility: hidden; transition: all 0.32s var(--ease); }
+.drawer-overlay.open { opacity: 1; visibility: visible; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 201; width: min(340px, 88vw); background: var(--bg-elevated); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.42s var(--ease-out); overflow-y: auto; display: flex; flex-direction: column; }
+.drawer.open { transform: translateX(0); }
+.drawer__head { padding: 18px 18px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg-elevated); z-index: 1; }
+.drawer__title { font-size: 14.5px; font-weight: 700; }
+.drawer__close { width: 34px; height: 34px; border-radius: 10px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); color: var(--txt-2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.drawer__close:active { transform: scale(0.92); }
+.drawer__close:hover { background: var(--red-soft); color: var(--red); }
+.drawer__close svg { width: 15px; height: 15px; }
+.drawer__profile { padding: 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 13px; }
+.drawer__avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 50%, #0e8f6a 100%); display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; box-shadow: 0 4px 14px -4px var(--acc-glow); }
+.drawer__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.drawer__info h3 { font-size: 13.5px; font-weight: 700; }
+.drawer__info p { font-size: 11px; color: var(--txt-3); margin-top: 2px; }
+.drawer__badge { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 3px 9px; border-radius: 100px; background: var(--acc-soft); border: 1px solid rgba(124, 255, 178, 0.22); font-size: 9.5px; font-weight: 700; color: var(--acc); letter-spacing: 0.04em; }
+.drawer__badge svg { width: 9px; height: 9px; }
+.drawer__section { padding: 14px 10px; }
+.drawer__label { padding: 6px 12px 6px; font-size: 10px; font-weight: 700; color: var(--txt-4); text-transform: uppercase; letter-spacing: 0.12em; }
+.drawer__item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px; color: var(--txt-2); cursor: pointer; transition: all 0.2s ease; font-size: 13px; font-weight: 500; border: none; background: transparent; width: 100%; font-family: inherit; text-align: left; }
+.drawer__item:active { transform: scale(0.98); }
+.drawer__item:hover { background: rgba(255, 255, 255, 0.045); color: var(--txt); }
+.drawer__item-icon { width: 32px; height: 32px; border-radius: 9px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex: none; }
+.drawer__item-icon svg { width: 14px; height: 14px; }
+.drawer__item-icon.green { background: var(--acc-soft); border-color: rgba(124, 255, 178, 0.18); color: var(--acc); }
+.drawer__item-icon.blue { background: var(--blue-soft); border-color: rgba(107, 184, 255, 0.18); color: var(--blue); }
+.drawer__item-icon.violet { background: var(--violet-soft); border-color: rgba(180, 139, 255, 0.18); color: var(--violet); }
+.drawer__item-icon.amber { background: var(--amber-soft); border-color: rgba(255, 203, 107, 0.18); color: var(--amber); }
+.drawer__item-icon.red { background: var(--red-soft); border-color: rgba(255, 95, 109, 0.18); color: var(--red); }
+.drawer__item-icon.pink { background: var(--pink-soft); border-color: rgba(255, 107, 157, 0.18); color: var(--pink); }
+.drawer__item-text { flex: 1; min-width: 0; }
+.drawer__item-text span { display: block; font-size: 10.5px; color: var(--txt-4); margin-top: 1px; font-weight: 500; }
+.drawer__item-arrow { color: var(--txt-4); flex: none; }
+.drawer__item-arrow svg { width: 13px; height: 13px; }
+.drawer__footer { margin-top: auto; padding: 18px; border-top: 1px solid var(--border); text-align: center; font-size: 10.5px; color: var(--txt-4); letter-spacing: 0.06em; }
+
+.container { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 22px 20px calc(56px + env(safe-area-inset-bottom)); opacity: 0; transition: opacity 0.85s var(--ease) 0.25s; }
+.container.ready { opacity: 1; }
+
+.hero { padding: 14px 0 18px; animation: fadeDown 0.75s var(--ease-out) both; }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.hero__title { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.18; margin-bottom: 10px; }
+.hero__title span { background: linear-gradient(135deg, #fff 0%, var(--acc) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero__sub { font-size: 13px; color: var(--txt-2); line-height: 1.6; max-width: 95%; }
+.hero__sub strong { color: var(--acc); font-weight: 600; }
+.hero__badges { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.hero__badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 100px; background: var(--panel); border: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--txt-2); backdrop-filter: blur(16px); }
+.hero__badge svg { width: 11px; height: 11px; }
+.hero__badge.green { color: var(--acc); border-color: rgba(124, 255, 178, 0.22); background: var(--acc-soft); }
+.hero__badge.blue { color: var(--blue); border-color: rgba(107, 184, 255, 0.22); background: var(--blue-soft); }
+
+.landing-tutorial { margin: 20px 0; padding: 22px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--border); backdrop-filter: blur(24px); position: relative; overflow: hidden; }
+.landing-tutorial::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: 0.6; }
+.landing-tutorial__title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.landing-tutorial__title svg { width: 18px; height: 18px; color: var(--acc); }
+.landing-tutorial__sub { font-size: 12px; color: var(--txt-3); margin-bottom: 18px; }
+.tutorial-steps { display: flex; flex-direction: column; gap: 12px; }
+.tutorial-step { display: flex; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); transition: all 0.22s var(--ease); }
+.tutorial-step:hover { background: rgba(0, 0, 0, 0.28); border-color: var(--border-hover); transform: translateX(3px); }
+.tutorial-step__num { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(145deg, var(--acc), var(--acc-2)); color: #04160a; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex: none; box-shadow: 0 4px 12px -4px var(--acc-glow); }
+.tutorial-step__body { flex: 1; min-width: 0; }
+.tutorial-step__title { font-size: 13px; font-weight: 700; color: var(--txt); margin-bottom: 2px; }
+.tutorial-step__desc { font-size: 11.5px; color: var(--txt-3); line-height: 1.5; }
+.tutorial-step__desc code { font-family: var(--mono); font-size: 10.5px; background: rgba(124, 255, 178, 0.08); color: var(--acc); padding: 1px 5px; border-radius: 4px; }
+
+.features-showcase { margin: 24px 0 8px; }
+.features-showcase__head { text-align: center; margin-bottom: 18px; }
+.features-showcase__title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+.features-showcase__title span { background: linear-gradient(135deg, #fff 0%, var(--acc) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.features-showcase__sub { font-size: 12.5px; color: var(--txt-3); }
+.feature-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feature-tile { position: relative; padding: 16px 14px; border-radius: var(--radius-md); background: var(--panel); border: 1px solid var(--border); backdrop-filter: blur(20px); transition: all 0.25s var(--ease); cursor: pointer; overflow: hidden; }
+.feature-tile:hover { transform: translateY(-3px); border-color: var(--border-hover); box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.55); }
+.feature-tile::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: 0; transition: opacity 0.3s ease; }
+.feature-tile:hover::after { opacity: 1; }
+.feature-tile.blue::after { background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+.feature-tile.violet::after { background: linear-gradient(90deg, transparent, var(--violet), transparent); }
+.feature-tile.amber::after { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.feature-tile.pink::after { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+.feature-tile__icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 11px; background: var(--acc-soft); border: 1px solid rgba(124, 255, 178, 0.18); color: var(--acc); }
+.feature-tile__icon svg { width: 18px; height: 18px; }
+.feature-tile.blue .feature-tile__icon { background: var(--blue-soft); border-color: rgba(107, 184, 255, 0.18); color: var(--blue); }
+.feature-tile.violet .feature-tile__icon { background: var(--violet-soft); border-color: rgba(180, 139, 255, 0.18); color: var(--violet); }
+.feature-tile.amber .feature-tile__icon { background: var(--amber-soft); border-color: rgba(255, 203, 107, 0.18); color: var(--amber); }
+.feature-tile.pink .feature-tile__icon { background: var(--pink-soft); border-color: rgba(255, 107, 157, 0.18); color: var(--pink); }
+.feature-tile__title { font-size: 13px; font-weight: 700; color: var(--txt); margin-bottom: 3px; letter-spacing: -0.01em; }
+.feature-tile__desc { font-size: 10.5px; color: var(--txt-3); line-height: 1.5; }
+.feature-tile__badge { position: absolute; top: 10px; right: 10px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 100px; background: var(--acc-soft); color: var(--acc); border: 1px solid rgba(124, 255, 178, 0.22); letter-spacing: 0.04em; }
+.feature-tile__badge.new { background: var(--pink-soft); color: var(--pink); border-color: rgba(255, 107, 157, 0.25); animation: pollPulse 2s ease-in-out infinite; }
+
+.steps-wrap { position: relative; margin: 20px 0; animation: fadeUp 0.75s var(--ease-out) 0.08s both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel); border: 1px solid var(--border); backdrop-filter: blur(20px) saturate(1.2); }
+.step { position: relative; padding: 11px 6px; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--txt-3); transition: all 0.35s var(--ease); display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
+.step:active { transform: scale(0.97); }
+.step__num { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); transition: all 0.3s var(--ease); flex: none; }
+.step.on { background: linear-gradient(135deg, var(--acc-soft) 0%, rgba(34, 211, 160, 0.03) 100%); color: var(--acc); box-shadow: inset 0 0 0 1px var(--border-active); }
+.step.on .step__num { background: var(--acc); border-color: var(--acc); color: #04160a; box-shadow: 0 3px 10px -2px var(--acc-glow); }
+.step.done { color: rgba(124, 255, 178, 0.45); }
+.step.done .step__num { background: rgba(124, 255, 178, 0.12); border-color: rgba(124, 255, 178, 0.25); color: var(--acc); }
+.step.done .step__num svg { width: 10px; height: 10px; }
+.steps-progress { position: relative; height: 2.5px; border-radius: 2.5px; background: rgba(255, 255, 255, 0.04); margin-top: 8px; overflow: hidden; }
+.steps-progress__fill { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, var(--acc), var(--blue), var(--violet)); border-radius: 2.5px; transition: width 0.55s var(--ease); box-shadow: 0 0 10px var(--acc-glow); }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; animation: fadeUp 0.75s var(--ease-out) 0.15s both; }
+.stat { position: relative; padding: 16px 15px; border-radius: var(--radius-md); background: var(--panel); border: 1px solid var(--border); backdrop-filter: blur(20px) saturate(1.2); overflow: hidden; }
+.stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: 0.5; }
+.stat--blue::before { background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+.stat__head { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.stat__icon { width: 24px; height: 24px; border-radius: 7px; background: var(--acc-soft); border: 1px solid rgba(124, 255, 178, 0.12); display: flex; align-items: center; justify-content: center; color: var(--acc); flex: none; }
+.stat__icon svg { width: 12px; height: 12px; }
+.stat--blue .stat__icon { background: rgba(107, 184, 255, 0.07); border-color: rgba(107, 184, 255, 0.12); color: var(--blue); }
+.stat__label { font-size: 10px; color: var(--txt-3); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.stat__value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat--green .stat__value { background: linear-gradient(135deg, #fff 0%, var(--acc) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat--blue .stat__value { background: linear-gradient(135deg, #fff 0%, var(--blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.panel { position: relative; padding: 22px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--border); backdrop-filter: blur(24px) saturate(1.4); margin-bottom: 14px; animation: cardIn 0.55s var(--ease-out); box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+@keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.panel::before { content: ''; position: absolute; inset: 0; border-radius: var(--radius); padding: 1px; background: linear-gradient(145deg, rgba(124, 255, 178, 0.12), transparent 40%, transparent 60%, rgba(107, 184, 255, 0.08)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.panel__head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.panel__icon { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(145deg, var(--acc-soft), rgba(34, 211, 160, 0.02)); border: 1px solid rgba(124, 255, 178, 0.18); display: flex; align-items: center; justify-content: center; color: var(--acc); flex: none; }
+.panel__icon svg { width: 17px; height: 17px; }
+.panel__title { font-size: 15.5px; font-weight: 700; letter-spacing: -0.02em; }
+.panel__hint { font-size: 12.5px; color: var(--txt-2); margin-bottom: 18px; margin-top: 8px; line-height: 1.55; }
+.panel__hint strong { color: var(--txt); font-weight: 600; }
+
+.email-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 4px; border-radius: var(--radius-md); background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); margin-bottom: 14px; }
+.email-tab { padding: 10px 10px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: 600; color: var(--txt-3); cursor: pointer; transition: all 0.25s var(--ease); display: flex; align-items: center; justify-content: center; gap: 6px; border: none; background: transparent; font-family: inherit; }
+.email-tab:active { transform: scale(0.97); }
+.email-tab svg { width: 13px; height: 13px; }
+.email-tab.active { background: linear-gradient(135deg, var(--acc-soft), rgba(34, 211, 160, 0.03)); color: var(--acc); box-shadow: inset 0 0 0 1px var(--border-active); }
+
+.field { margin-bottom: 6px; }
+.field__label { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.field__hint { font-size: 10px; color: var(--txt-4); text-transform: none; letter-spacing: 0.02em; font-weight: 500; }
+.field__hint.valid { color: var(--acc); }
+.field__wrapper { position: relative; }
+.field__icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--txt-3); pointer-events: none; transition: color 0.2s ease; }
+.field input, .field textarea { width: 100%; padding: 13px 14px 13px 42px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--txt); font-family: var(--font); font-size: 14px; font-weight: 500; outline: none; transition: all 0.25s var(--ease); }
+.field textarea { padding-left: 14px; resize: vertical; min-height: 70px; line-height: 1.55; font-size: 13px; }
+.field input::placeholder, .field textarea::placeholder { color: var(--txt-4); font-weight: 400; }
+.field input:focus, .field textarea:focus { border-color: var(--acc); background: rgba(124, 255, 178, 0.025); box-shadow: 0 0 0 3px rgba(124, 255, 178, 0.07), 0 6px 20px -8px var(--acc-glow); }
+.field__wrapper:focus-within .field__icon { color: var(--acc); }
+
+.btn { position: relative; width: 100%; padding: 14px 20px; border: none; border-radius: var(--radius-md); font-family: var(--font); font-size: 13.5px; font-weight: 700; letter-spacing: -0.01em; cursor: pointer; transition: all 0.25s var(--ease); margin-top: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; overflow: hidden; isolation: isolate; }
+.btn__icon { width: 15px; height: 15px; transition: transform 0.3s var(--ease); flex: none; }
+.btn--primary { background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 55%, #0e8f6a 100%); color: #04160a; box-shadow: 0 10px 28px -8px var(--acc-glow), 0 2px 6px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+.btn--primary::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.4) 50%, transparent 75%); transform: translateX(-100%); transition: transform 0.65s var(--ease); z-index: -1; }
+.btn--primary:hover:not(:disabled)::before { transform: translateX(100%); }
+.btn--primary:hover:not(:disabled) { transform: translateY(-1.5px); }
+.btn--primary:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn--secondary { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); color: var(--txt-2); }
+.btn--secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.055); border-color: var(--border-hover); color: var(--txt); }
+.btn--ghost { background: rgba(124, 255, 178, 0.05); border: 1px dashed rgba(124, 255, 178, 0.25); color: var(--acc); margin-top: 8px; }
+.btn--ghost:hover:not(:disabled) { background: rgba(124, 255, 178, 0.1); border-color: rgba(124, 255, 178, 0.4); }
+.btn:disabled { opacity: 0.5; cursor: wait; transform: none !important; }
+.btn__spinner { width: 15px; height: 15px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-row { display: grid; grid-template-columns: auto 1fr; gap: 9px; margin-top: 14px; }
+.btn-row .btn { margin-top: 0; }
+
+.msg { padding: 12px 14px; border-radius: var(--radius-md); font-size: 12.5px; font-weight: 500; margin-top: 14px; display: none; align-items: flex-start; gap: 10px; line-height: 1.5; }
+.msg.show { display: flex; animation: msgIn 0.32s var(--ease-out); }
+@keyframes msgIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+.msg--err { background: var(--red-soft); border: 1px solid rgba(255, 95, 109, 0.22); color: var(--red); }
+.msg--ok { background: var(--acc-soft); border: 1px solid rgba(124, 255, 178, 0.22); color: var(--acc); }
+.msg--warn { background: var(--amber-soft); border: 1px solid rgba(255, 203, 107, 0.22); color: var(--amber); }
+.msg__icon { width: 18px; height: 18px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-top: 1px; }
+.msg--err .msg__icon { background: rgba(255, 95, 109, 0.14); }
+.msg--ok .msg__icon { background: rgba(124, 255, 178, 0.14); }
+.msg--warn .msg__icon { background: rgba(255, 203, 107, 0.14); }
+.msg__icon svg { width: 11px; height: 11px; }
+
+.terminal-wrap { margin-top: 14px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); background: #050508; display: none; }
+.terminal-wrap.show { display: block; animation: cardIn 0.45s var(--ease-out); }
+.terminal-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: #0a0a10; border-bottom: 1px solid var(--border); }
+.terminal-head__left { display: flex; align-items: center; gap: 9px; }
+.terminal-dots { display: flex; gap: 5px; }
+.terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+.terminal-dot.red { background: #ff5f56; }
+.terminal-dot.yellow { background: #ffbd2e; }
+.terminal-dot.green { background: #27c93f; }
+.terminal-title { font-family: var(--mono); font-size: 10.5px; color: var(--txt-3); font-weight: 600; }
+.terminal-status { font-family: var(--mono); font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 100px; background: var(--acc-soft); color: var(--acc); border: 1px solid rgba(124, 255, 178, 0.18); }
+.terminal-body { max-height: 220px; overflow-y: auto; padding: 11px 12px; font-family: var(--mono); font-size: 11px; line-height: 1.65; color: var(--txt-2); }
+.terminal-body::-webkit-scrollbar { width: 5px; }
+.terminal-body::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+.terminal-line { display: flex; gap: 7px; padding: 1px 0; animation: termLine 0.28s var(--ease-out); }
+@keyframes termLine { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+.terminal-line__prefix { flex: none; font-weight: 700; min-width: 40px; }
+.terminal-line--info .terminal-line__prefix { color: var(--blue); }
+.terminal-line--ok .terminal-line__prefix { color: var(--acc); }
+.terminal-line--warn .terminal-line__prefix { color: var(--amber); }
+.terminal-line--err .terminal-line__prefix { color: var(--red); }
+.terminal-line--cmd .terminal-line__prefix { color: var(--violet); }
+.terminal-line--info .terminal-line__text { color: var(--txt-2); }
+.terminal-line--ok .terminal-line__text { color: var(--txt); }
+.terminal-line--warn .terminal-line__text { color: var(--amber); }
+.terminal-line--err .terminal-line__text { color: var(--red); }
+.terminal-line--cmd .terminal-line__text { color: var(--violet); }
+.terminal-line__text { flex: 1; word-break: break-all; }
+.terminal-foot { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: #0a0a10; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 9.5px; color: var(--txt-4); }
+.terminal-foot__left { display: flex; gap: 12px; }
+.terminal-foot__item { display: flex; align-items: center; gap: 4px; }
+.terminal-foot__item svg { width: 9px; height: 9px; }
+.terminal-foot__item.green { color: var(--acc); }
+.terminal-foot__item.blue { color: var(--blue); }
+.terminal-clear { background: none; border: none; color: var(--txt-4); cursor: pointer; font-family: inherit; font-size: 9.5px; padding: 2px 5px; border-radius: 4px; transition: all 0.2s ease; }
+.terminal-clear:hover { background: var(--red-soft); color: var(--red); }
+
+.poll-status { display: none; align-items: center; gap: 9px; padding: 11px 13px; border-radius: var(--radius-md); background: rgba(107, 184, 255, 0.05); border: 1px solid rgba(107, 184, 255, 0.18); color: var(--blue); font-size: 12.5px; font-weight: 500; margin-top: 11px; }
+.poll-status.show { display: flex; }
+.poll-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 9px var(--blue); animation: pollPulse 1.6s ease-in-out infinite; }
+.poll-status__timer { margin-left: auto; font-family: var(--mono); font-size: 11px; opacity: 0.8; }
+
+.result__hero { position: relative; padding: 20px 16px; border-radius: var(--radius-md); background: linear-gradient(145deg, rgba(124, 255, 178, 0.12) 0%, rgba(34, 211, 160, 0.03) 100%); border: 1px solid rgba(124, 255, 178, 0.22); margin-bottom: 16px; display: flex; align-items: center; gap: 14px; overflow: hidden; }
+.result__icon { position: relative; width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(145deg, var(--acc) 0%, var(--acc-2) 100%); display: flex; align-items: center; justify-content: center; flex: none; box-shadow: 0 8px 20px -5px var(--acc-glow); }
+.result__icon svg { width: 24px; height: 24px; color: #04160a; }
+.result__hero-text h3 { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 3px; }
+.result__hero-text p { font-size: 12.5px; color: var(--txt-2); line-height: 1.5; }
+.kv-list { border-radius: var(--radius-md); background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); overflow: hidden; }
+.kv { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.kv:last-child { border-bottom: none; }
+.kv__label { display: flex; align-items: center; gap: 7px; color: var(--txt-3); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; flex: none; }
+.kv__label svg { width: 11px; height: 11px; opacity: 0.7; }
+.kv__value { color: var(--txt); font-family: var(--mono); font-size: 11.5px; font-weight: 500; text-align: right; word-break: break-all; max-width: 58%; }
+.kv__value--accent { color: var(--acc); }
+.token-section { margin-top: 16px; }
+.token-section__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.token-section__label { font-size: 10.5px; font-weight: 700; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.token-section__badge { font-size: 9.5px; font-weight: 600; color: var(--txt-4); padding: 2px 7px; border-radius: 100px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); letter-spacing: 0.04em; }
+.token-box { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; font-family: var(--mono); font-size: 10.5px; color: var(--txt-2); word-break: break-all; max-height: 100px; overflow-y: auto; line-height: 1.65; }
+.token-box::-webkit-scrollbar { width: 4px; }
+.token-box::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
+.token-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.btn--tiny { padding: 10px 14px; font-size: 12px; margin-top: 0; border-radius: var(--radius-sm); }
+.btn--tiny .btn__icon { width: 12px; height: 12px; }
+.share-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-top: 10px; }
+
+.history { margin-top: 18px; }
+.history__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.history__title { font-size: 10.5px; font-weight: 700; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
+.history__clear { font-size: 11px; color: var(--txt-4); background: none; border: none; cursor: pointer; padding: 3px 7px; border-radius: 5px; font-family: inherit; font-weight: 600; }
+.history__clear:hover { background: var(--red-soft); color: var(--red); }
+.history__list { display: flex; flex-direction: column; gap: 7px; }
+.history__item { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: var(--radius-sm); background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); transition: all 0.2s ease; cursor: pointer; }
+.history__item:hover { background: rgba(0, 0, 0, 0.28); border-color: var(--border-hover); }
+.history__icon { width: 26px; height: 26px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; }
+.history__icon.ok { background: var(--acc-soft); color: var(--acc); border: 1px solid rgba(124, 255, 178, 0.22); }
+.history__icon.fail { background: var(--red-soft); color: var(--red); border: 1px solid rgba(255, 95, 109, 0.22); }
+.history__icon svg { width: 11px; height: 11px; }
+.history__info { flex: 1; min-width: 0; }
+.history__email { font-size: 12.5px; font-weight: 600; color: var(--txt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history__time { font-size: 10.5px; color: var(--txt-4); margin-top: 1px; }
+.history__empty { padding: 18px 14px; text-align: center; font-size: 12px; color: var(--txt-4); font-style: italic; background: rgba(0, 0, 0, 0.12); border: 1px dashed var(--border); border-radius: var(--radius-sm); }
+
+.modal-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(10px); opacity: 0; visibility: hidden; transition: all 0.3s var(--ease); display: flex; align-items: center; justify-content: center; padding: 22px 14px; }
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal { position: relative; width: 100%; max-width: 420px; max-height: 85vh; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transform: scale(0.92) translateY(16px); transition: transform 0.38s var(--ease-out); display: flex; flex-direction: column; }
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal__head { padding: 16px 18px 13px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex: none; }
+.modal__title { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; }
+.modal__close { width: 32px; height: 32px; border-radius: 9px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); color: var(--txt-2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.modal__close:active { transform: scale(0.92); }
+.modal__close:hover { background: var(--red-soft); color: var(--red); }
+.modal__close svg { width: 14px; height: 14px; }
+.modal__body { padding: 16px 18px 20px; overflow-y: auto; font-size: 13px; color: var(--txt-2); line-height: 1.65; }
+.modal__body h4 { font-size: 13px; font-weight: 700; color: var(--txt); margin-bottom: 7px; margin-top: 14px; display: flex; align-items: center; gap: 7px; }
+.modal__body h4:first-child { margin-top: 0; }
+.modal__body h4 svg { width: 13px; height: 13px; color: var(--acc); }
+.modal__body p { margin-bottom: 9px; }
+.modal__body ul { padding-left: 18px; margin-bottom: 10px; }
+.modal__body li { margin-bottom: 5px; }
+.modal__body code { font-family: var(--mono); font-size: 11px; background: rgba(124, 255, 178, 0.07); color: var(--acc); padding: 2px 5px; border-radius: 4px; }
+.modal__body a { color: var(--acc); text-decoration: underline; }
+.modal__body .kbd { display: inline-block; padding: 2px 6px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-hover); border-radius: 4px; font-family: var(--mono); font-size: 10px; color: var(--txt); font-weight: 600; }
+
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.feature-card { padding: 12px 10px; border-radius: 11px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); }
+.feature-card__icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 14px; }
+.feature-card__icon.green { background: var(--acc-soft); color: var(--acc); }
+.feature-card__icon.blue { background: var(--blue-soft); color: var(--blue); }
+.feature-card__icon.violet { background: var(--violet-soft); color: var(--violet); }
+.feature-card__icon.amber { background: var(--amber-soft); color: var(--amber); }
+.feature-card__icon.pink { background: var(--pink-soft); color: var(--pink); }
+.feature-card__title { font-size: 11.5px; font-weight: 700; color: var(--txt); margin-bottom: 2px; }
+.feature-card__desc { font-size: 10.5px; color: var(--txt-3); line-height: 1.45; }
+
+.inbox-email-box { margin-bottom: 12px; padding: 11px; border-radius: 10px; background: rgba(124, 255, 178, 0.05); border: 1px solid rgba(124, 255, 178, 0.18); }
+.inbox-email-box__label { font-size: 10px; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 5px; }
+.inbox-email-box__row { display: flex; align-items: center; gap: 7px; }
+.inbox-email-box__code { flex: 1; font-family: var(--mono); font-size: 11px; color: var(--acc); word-break: break-all; }
+.inbox-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.inbox-header__label { font-size: 10.5px; font-weight: 700; color: var(--txt-3); text-transform: uppercase; letter-spacing: 0.1em; }
+.inbox-header__count { font-size: 10px; color: var(--txt-4); font-family: var(--mono); }
+.inbox-list { display: flex; flex-direction: column; gap: 7px; max-height: 280px; overflow-y: auto; padding-right: 3px; }
+.inbox-item { display: flex; align-items: flex-start; gap: 11px; padding: 12px; border-radius: var(--radius-sm); background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s ease; }
+.inbox-item:hover { background: rgba(0, 0, 0, 0.28); border-color: var(--border-hover); }
+.inbox-item__icon { width: 32px; height: 32px; border-radius: 9px; background: var(--acc-soft); border: 1px solid rgba(124, 255, 178, 0.18); color: var(--acc); display: flex; align-items: center; justify-content: center; flex: none; }
+.inbox-item__icon svg { width: 14px; height: 14px; }
+.inbox-item__content { flex: 1; min-width: 0; }
+.inbox-item__sender { font-size: 12px; font-weight: 700; color: var(--txt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+.inbox-item__subject { font-size: 11px; color: var(--txt-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px; }
+.inbox-item__time { font-size: 10px; color: var(--txt-4); font-family: var(--mono); }
+.inbox-item__arrow { color: var(--txt-4); flex: none; align-self: center; }
+.inbox-item__arrow svg { width: 13px; height: 13px; }
+.inbox-empty { padding: 22px 14px; text-align: center; font-size: 12px; color: var(--txt-4); font-style: italic; background: rgba(0, 0, 0, 0.12); border: 1px dashed var(--border); border-radius: var(--radius-sm); }
+.inbox-back { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; margin-bottom: 11px; border-radius: 100px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); color: var(--txt-2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; font-family: inherit; }
+.inbox-back:hover { background: rgba(255, 255, 255, 0.07); color: var(--txt); }
+.inbox-back svg { width: 11px; height: 11px; }
+
+.email-view { font-family: var(--mono); font-size: 12px; color: var(--txt); background: #050508; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.email-view__head { padding: 12px 14px; background: rgba(255, 255, 255, 0.015); border-bottom: 1px dashed var(--border); }
+.email-view__subject { font-size: 13.5px; font-weight: 700; color: var(--acc); margin-bottom: 10px; font-family: var(--mono); word-break: break-word; line-height: 1.4; }
+.email-view__row { display: flex; gap: 7px; font-size: 11px; margin-bottom: 4px; line-height: 1.5; }
+.email-view__row:last-child { margin-bottom: 0; }
+.email-view__row-label { flex: none; width: 50px; color: var(--txt-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.email-view__row-value { flex: 1; color: var(--txt-2); word-break: break-all; }
+.email-view__divider { height: 1px; background-image: linear-gradient(90deg, var(--border) 50%, transparent 50%); background-size: 7px 1px; background-repeat: repeat-x; margin: 0 14px; }
+.email-view__body { padding: 14px; font-family: var(--font); font-size: 13px; line-height: 1.65; max-height: 220px; overflow-y: auto; background: #ffffff; color: #1a1a1a; word-wrap: break-word; }
+.email-view__body * { max-width: 100% !important; word-break: break-word !important; }
+.email-view__body a { color: #0066cc; text-decoration: underline; word-break: break-all; }
+.email-view__body img { max-width: 100%; height: auto; }
+.email-view__body::-webkit-scrollbar { width: 5px; }
+.email-view__body::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); border-radius: 3px; }
+.email-view__actions { padding: 11px 14px; background: rgba(255, 255, 255, 0.015); border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.email-view__actions .btn { margin-top: 0; padding: 10px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+
+.capcut-search { display: flex; gap: 8px; margin-bottom: 12px; }
+.capcut-search input { flex: 1; padding: 12px 14px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--txt); font-family: var(--font); font-size: 13px; font-weight: 500; outline: none; transition: all 0.25s var(--ease); }
+.capcut-search input::placeholder { color: var(--txt-4); font-weight: 400; }
+.capcut-search input:focus { border-color: var(--acc); background: rgba(124, 255, 178, 0.025); box-shadow: 0 0 0 3px rgba(124, 255, 178, 0.07); }
+.capcut-search button { padding: 12px 16px; background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 55%, #0e8f6a 100%); color: #04160a; border: none; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; font-size: 13px; transition: all 0.25s var(--ease); box-shadow: 0 6px 18px -6px var(--acc-glow); flex: none; }
+.capcut-search button:active { transform: scale(0.95); }
+.capcut-search button:disabled { opacity: 0.5; cursor: wait; }
+.capcut-search button svg { width: 15px; height: 15px; }
+.capcut-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 4px; border-radius: var(--radius-md); background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); margin-bottom: 12px; }
+.capcut-tab { padding: 8px 10px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: 600; color: var(--txt-3); cursor: pointer; border: none; background: transparent; font-family: inherit; transition: all 0.25s var(--ease); display: flex; align-items: center; justify-content: center; gap: 5px; }
+.capcut-tab:active { transform: scale(0.97); }
+.capcut-tab svg { width: 12px; height: 12px; }
+.capcut-tab.active { background: linear-gradient(135deg, var(--acc-soft), rgba(34, 211, 160, 0.03)); color: var(--acc); box-shadow: inset 0 0 0 1px var(--border-active); }
+.capcut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; max-height: 440px; overflow-y: auto; padding-right: 3px; }
+.capcut-grid::-webkit-scrollbar { width: 5px; }
+.capcut-grid::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+.capcut-card { border-radius: var(--radius-sm); background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: all 0.22s var(--ease); display: flex; flex-direction: column; }
+.capcut-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.55); }
+.capcut-card__thumb { position: relative; width: 100%; aspect-ratio: 3/4; background: #0a0a10; overflow: hidden; }
+.capcut-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s var(--ease); }
+.capcut-card:hover .capcut-card__thumb img { transform: scale(1.05); }
+.capcut-card__dur { position: absolute; bottom: 6px; right: 6px; padding: 2px 6px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px); border-radius: 4px; font-size: 9.5px; font-family: var(--mono); color: #fff; font-weight: 600; }
+.capcut-card__badge { position: absolute; top: 6px; left: 6px; padding: 2px 6px; background: rgba(124, 255, 178, 0.9); color: #04160a; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.capcut-card__body { padding: 9px 10px; display: flex; flex-direction: column; gap: 6px; }
+.capcut-card__title { font-size: 11.5px; font-weight: 600; color: var(--txt); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 31px; }
+.capcut-card__stats { display: flex; gap: 8px; font-size: 9.5px; color: var(--txt-4); font-family: var(--mono); font-weight: 500; }
+.capcut-card__stats span { display: flex; align-items: center; gap: 3px; }
+.capcut-card__stats svg { width: 9px; height: 9px; }
+.capcut-card__actions { display: flex; gap: 4px; margin-top: 2px; }
+.capcut-card__actions button { flex: 1; padding: 6px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); color: var(--txt-2); font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 3px; }
+.capcut-card__actions button:hover { background: var(--acc-soft); color: var(--acc); border-color: rgba(124, 255, 178, 0.25); }
+.capcut-card__actions button svg { width: 9px; height: 9px; }
+.capcut-empty { padding: 26px 14px; text-align: center; font-size: 12px; color: var(--txt-4); font-style: italic; background: rgba(0, 0, 0, 0.12); border: 1px dashed var(--border); border-radius: var(--radius-sm); grid-column: 1 / -1; line-height: 1.6; }
+.capcut-loading { grid-column: 1 / -1; padding: 30px 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--txt-3); font-size: 12px; }
+.capcut-loading .btn__spinner { width: 24px; height: 24px; border-width: 3px; border-color: var(--acc); border-top-color: transparent; }
+.capcut-info { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 9px; background: rgba(107, 184, 255, 0.05); border: 1px solid rgba(107, 184, 255, 0.15); color: var(--blue); font-size: 11px; font-weight: 500; margin-bottom: 10px; }
+.capcut-info svg { width: 12px; height: 12px; flex: none; }
+
+.apk-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.apk-form-grid .field-full { grid-column: 1 / -1; }
+.apk-form-grid .field { margin-bottom: 0; }
+.apk-form-grid .field input { padding: 11px 12px 11px 40px; font-size: 13px; }
+.apk-form-grid .field__icon { left: 12px; width: 14px; height: 14px; }
+.apk-options { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.apk-option { flex: 1; min-width: 90px; padding: 9px 10px; border-radius: 10px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); color: var(--txt-3); font-size: 11.5px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.22s var(--ease); display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
+.apk-option:active { transform: scale(0.97); }
+.apk-option svg { width: 11px; height: 11px; }
+.apk-option.on { background: linear-gradient(135deg, var(--acc-soft), rgba(34, 211, 160, 0.03)); color: var(--acc); border-color: var(--border-active); }
+.apk-result { margin-top: 16px; padding: 16px; border-radius: var(--radius-md); background: linear-gradient(145deg, rgba(124, 255, 178, 0.08) 0%, rgba(34, 211, 160, 0.02) 100%); border: 1px solid rgba(124, 255, 178, 0.22); display: none; }
+.apk-result.show { display: block; animation: cardIn 0.45s var(--ease-out); }
+.apk-result__head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.apk-result__icon { width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(145deg, var(--acc), var(--acc-2)); display: flex; align-items: center; justify-content: center; color: #04160a; flex: none; box-shadow: 0 6px 16px -5px var(--acc-glow); }
+.apk-result__icon svg { width: 20px; height: 20px; }
+.apk-result__title { font-size: 14.5px; font-weight: 800; letter-spacing: -0.02em; color: var(--txt); margin-bottom: 2px; }
+.apk-result__sub { font-size: 11px; color: var(--txt-3); font-family: var(--mono); }
+.apk-result__meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.apk-result__meta-item { padding: 9px 11px; border-radius: 9px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); }
+.apk-result__meta-label { font-size: 9px; color: var(--txt-4); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 3px; }
+.apk-result__meta-value { font-size: 11px; color: var(--txt); font-family: var(--mono); font-weight: 600; word-break: break-all; }
+.apk-result__actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.apk-result__actions .btn { margin-top: 0; }
+.apk-progress { display: none; margin-top: 14px; padding: 14px; border-radius: var(--radius-md); background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); }
+.apk-progress.show { display: block; }
+.apk-progress__label { display: flex; justify-content: space-between; margin-bottom: 9px; font-size: 11.5px; color: var(--txt-2); font-weight: 600; }
+.apk-progress__label span:last-child { font-family: var(--mono); color: var(--acc); }
+.apk-progress__track { height: 4px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); overflow: hidden; position: relative; }
+.apk-progress__fill { height: 100%; background: linear-gradient(90deg, var(--acc), var(--blue), var(--violet)); border-radius: 4px; width: 0%; transition: width 0.5s var(--ease); box-shadow: 0 0 10px var(--acc-glow); }
+.apk-progress__steps { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+.apk-progress__step { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--txt-4); font-family: var(--mono); transition: color 0.3s ease; }
+.apk-progress__step.done { color: var(--acc); }
+.apk-progress__step.active { color: var(--blue); }
+.apk-progress__step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.apk-progress__step.active .apk-progress__step-dot { animation: pollPulse 1.2s ease-in-out infinite; box-shadow: 0 0 8px currentColor; }
+
+.music-search { display: flex; gap: 8px; margin-bottom: 14px; }
+.music-search input { flex: 1; padding: 12px 14px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--txt); font-family: var(--font); font-size: 13px; outline: none; transition: all 0.25s var(--ease); }
+.music-search input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(124, 255, 178, 0.07); }
+.music-search button { padding: 12px 16px; background: linear-gradient(145deg, #7cffb2 0%, #22d3a0 55%, #0e8f6a 100%); color: #04160a; border: none; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; font-size: 13px; flex: none; box-shadow: 0 6px 18px -6px var(--acc-glow); }
+.music-search button:active { transform: scale(0.95); }
+.music-search button:disabled { opacity: 0.5; cursor: wait; }
+.music-search button svg { width: 15px; height: 15px; }
+.music-player { padding: 16px; border-radius: var(--radius-md); background: linear-gradient(145deg, rgba(107, 184, 255, 0.06), rgba(180, 139, 255, 0.02)); border: 1px solid rgba(107, 184, 255, 0.18); display: none; }
+.music-player.show { display: block; animation: cardIn 0.4s var(--ease-out); }
+.music-player__head { display: flex; gap: 14px; margin-bottom: 14px; }
+.music-player__thumb { width: 90px; height: 90px; border-radius: 12px; overflow: hidden; flex: none; background: #0a0a10; box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.55); position: relative; }
+.music-player__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.music-player__thumb.playing::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 2px var(--blue); animation: pollPulse 1.5s ease-in-out infinite; }
+.music-player__info { flex: 1; min-width: 0; }
+.music-player__title { font-size: 13.5px; font-weight: 700; color: var(--txt); line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.music-player__meta { font-size: 11px; color: var(--txt-3); display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--mono); }
+.music-player__badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(107, 184, 255, 0.22); font-size: 9.5px; font-weight: 700; }
+.music-player audio { width: 100%; margin-top: 4px; border-radius: 100px; height: 36px; outline: none; }
+.music-player__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.music-player__actions .btn { margin-top: 0; padding: 10px 12px; font-size: 12px; border-radius: var(--radius-sm); }
+
+.ai-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.ai-form textarea { width: 100%; min-height: 80px; padding: 12px 14px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--txt); font-family: var(--font); font-size: 13px; resize: vertical; outline: none; line-height: 1.55; }
+.ai-form textarea:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(124, 255, 178, 0.07); }
+.ai-form textarea::placeholder { color: var(--txt-4); }
+.ai-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.ai-preset { padding: 5px 10px; border-radius: 100px; background: rgba(255, 255, 255, 0.035); border: 1px solid var(--border); color: var(--txt-3); font-size: 10.5px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s var(--ease); }
+.ai-preset:hover { background: var(--pink-soft); color: var(--pink); border-color: rgba(255, 107, 157, 0.25); }
+.ai-image-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
+.ai-image-card { border-radius: var(--radius-md); overflow: hidden; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); animation: cardIn 0.4s var(--ease-out); }
+.ai-image-card img { width: 100%; display: block; max-height: 460px; object-fit: contain; background: #0a0a10; }
+.ai-image-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px; }
+.ai-image-card__actions .btn { margin-top: 0; padding: 9px 12px; font-size: 11.5px; border-radius: var(--radius-sm); }
+.ai-loading { grid-column: 1 / -1; padding: 30px 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--txt-3); font-size: 12px; background: rgba(0, 0, 0, 0.18); border: 1px dashed var(--border); border-radius: var(--radius-md); }
+.ai-loading__progress { width: 200px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.05); overflow: hidden; }
+.ai-loading__fill { height: 100%; background: linear-gradient(90deg, var(--acc), var(--blue), var(--violet)); border-radius: 3px; width: 0%; transition: width 0.4s var(--ease); }
+
+.footer { position: relative; margin-top: 36px; padding-top: 20px; text-align: center; font-size: 11px; color: var(--txt-4); letter-spacing: 0.05em; line-height: 1.65; }
+.footer::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 48px; height: 1px; background: linear-gradient(90deg, transparent, var(--border-hover), transparent); }
+.footer b { color: var(--acc); font-weight: 600; opacity: 0.7; }
+.footer__badge { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; padding: 4px 11px; border-radius: 100px; background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border); font-size: 9.5px; color: var(--txt-4); letter-spacing: 0.08em; font-weight: 600; }
+.footer__badge svg { width: 9px; height: 9px; }
+.footer a[href*="whatsapp"]:hover { background: linear-gradient(145deg, rgba(37,211,102,0.2), rgba(37,211,102,0.08)) !important; border-color: rgba(37,211,102,0.5) !important; transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(37,211,102,0.35); }
+
+.toast { position: fixed; top: 18px; left: 50%; transform: translateX(-50%) translateY(-120%); padding: 12px 16px; border-radius: var(--radius-md); background: linear-gradient(145deg, rgba(124, 255, 178, 0.12), rgba(34, 211, 160, 0.06)); border: 1px solid rgba(124, 255, 178, 0.25); backdrop-filter: blur(20px); display: flex; align-items: center; gap: 11px; z-index: 10000; box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.55); transition: transform 0.45s var(--ease-out); max-width: calc(100vw - 36px); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast__icon { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(145deg, var(--acc), var(--acc-2)); display: flex; align-items: center; justify-content: center; flex: none; }
+.toast__icon svg { width: 16px; height: 16px; color: #04160a; }
+.toast__text h4 { font-size: 12.5px; font-weight: 700; color: var(--txt); }
+.toast__text p { font-size: 11px; color: var(--txt-2); margin-top: 1px; }
+
+.hide { display: none !important; }
+
+@media (max-width: 480px) {
+  .container { padding: 18px 14px 44px; }
+  .hero__title { font-size: 22px; }
+  .stat { padding: 14px 12px; }
+  .stat__value { font-size: 22px; }
+  .panel { padding: 18px 14px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .share-actions { grid-template-columns: 1fr; }
+  .apk-form-grid { grid-template-columns: 1fr; }
+  .apk-result__meta { grid-template-columns: 1fr; }
+  .feature-cards { grid-template-columns: 1fr; }
+  .music-player__thumb { width: 70px; height: 70px; }
 }
-.panel h2 { font-size: 13px; font-weight: 600; margin-bottom: 4px }
-.panel .hint { color: var(--dim); font-size: 11.5px; margin-bottom: 14px }
-label { display: block; color: var(--dim); font-size: 11px; margin-bottom: 5px; letter-spacing: .03em }
-input {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  color: var(--txt);
-  font: inherit;
-  padding: 9px 11px;
-  outline: none;
-}
-input:focus { border-color: var(--acc) }
-button {
-  background: var(--acc);
-  color: #06130a;
-  border: none;
-  font: inherit;
-  font-weight: 600;
-  padding: 9px 18px;
-  cursor: pointer;
-  margin-top: 12px;
-}
-button.sec { background: transparent; color: var(--dim); border: 1px solid var(--line) }
-button:disabled { opacity: .45; cursor: wait }
 
-.msg { padding: 9px 12px; font-size: 12px; margin: 12px 0; display: none }
-.msg.err { display: block; background: #2a1414; border: 1px solid #4a2020; color: var(--red) }
-.msg.ok { display: block; background: #12201a; border: 1px solid var(--acc-dim); color: var(--acc) }
-
-.kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 12px }
-.kv:last-child { border-bottom: none }
-.kv b { color: var(--dim); font-weight: 400 }
-.kv span { color: var(--txt); text-align: right; word-break: break-all; max-width: 60% }
-.tok {
-  background: var(--bg); border: 1px solid var(--line);
-  padding: 9px 11px; font-size: 10.5px; word-break: break-all;
-  color: var(--dim); max-height: 90px; overflow: hidden;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
-button.tiny { margin: 0; padding: 4px 10px; font-size: 11px }
-footer { margin-top: 26px; color: #3f3f44; font-size: 10.5px; text-align: center }
-.hide { display: none }
 </style>
 </head>
-<body>
-<div class="wrap">
+<body class="locked">
 
-<header>
-  <h1>am <span>/</span> activate <span style="color:var(--dim);font-weight:400">by neo</span></h1>
-  <p>alight motion premium — magic link activation</p>
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
+
+<div class="loader" id="loader">
+  <div class="loader__rings">
+    <div class="loader__ring"></div>
+    <div class="loader__ring"></div>
+    <div class="loader__ring"></div>
+    <div class="loader__core">
+      <img src="https://files.catbox.moe/i51c0y.jpg" alt="OAA">
+    </div>
+  </div>
+  <div class="loader__text">
+    <div class="loader__title">Omni Azure Asahiro</div>
+    <div class="loader__subtitle">Please wait<span class="loader__dots"></span></div>
+  </div>
+  <div class="loader__bar">
+    <div class="loader__bar-fill" id="loaderBar"></div>
+  </div>
+  <div class="loader__percent" id="loaderPercent">0%</div>
+</div>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-aurora"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-noise"></div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast__icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  </div>
+  <div class="toast__text">
+    <h4 id="toastTitle">Success!</h4>
+    <p id="toastDesc">Action completed</p>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header__inner">
+    <div class="brand" id="brandHome">
+      <div class="brand__logo">
+        <img src="https://files.catbox.moe/i51c0y.jpg" alt="OAA">
+      </div>
+      <div class="brand__info">
+        <h1>Omni Azure Asahiro</h1>
+        <p>Powered by <b>Azure</b></p>
+      </div>
+    </div>
+    <div class="header__actions">
+      <button class="icon-btn" id="terminalToggle" title="Terminal Log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </button>
+      <button class="icon-btn" id="inboxToggle" title="Inbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      </button>
+      <button class="icon-btn" id="soundToggle" title="Toggle Sound">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      </button>
+      <button class="icon-btn" id="menuBtn" title="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
 </header>
 
-<div class="steps">
-  <div id="n1" class="on">01 email</div>
-  <div id="n2">02 link</div>
-  <div id="n3">03 done</div>
-</div>
-
-<div class="panel" style="display:flex;justify-content:space-between;align-items:center">
-  <div>
-    <div style="color:var(--dim);font-size:10.5px;letter-spacing:.05em">TOTAL AKTIVASI</div>
-    <div style="font-size:20px;font-weight:600;color:var(--acc)" id="st-total">-</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer__head">
+    <div class="drawer__title">Menu</div>
+    <button class="drawer__close" id="drawerClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
   </div>
-  <div style="text-align:right">
-    <div style="color:var(--dim);font-size:10.5px;letter-spacing:.05em">HARI INI</div>
-    <div style="font-size:20px;font-weight:600" id="st-today">-</div>
+  <div class="drawer__profile">
+    <div class="drawer__avatar">
+      <img src="https://files.catbox.moe/i51c0y.jpg" alt="OAA">
+    </div>
+    <div class="drawer__info">
+      <h3>Omni Azure Asahiro</h3>
+      <p>Premium Activator v7.3</p>
+      <div class="drawer__badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+        OFFICIAL
+      </div>
+    </div>
+  </div>
+  <div class="drawer__section">
+    <div class="drawer__label">Menu Utama</div>
+    <button class="drawer__item" id="menuHome">
+      <div class="drawer__item-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div class="drawer__item-text">Home<span>Aktivasi AM Premium</span></div>
+    </button>
+    <button class="drawer__item" id="menuInbox">
+      <div class="drawer__item-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+      <div class="drawer__item-text">Inbox<span>Cek email yang masuk</span></div>
+    </button>
+    <button class="drawer__item" id="menuTerminal">
+      <div class="drawer__item-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+      <div class="drawer__item-text">Terminal Log<span>Lihat proses real-time</span></div>
+    </button>
+    <button class="drawer__item" id="menuHistory">
+      <div class="drawer__item-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="drawer__item-text">Riwayat<span>Aktivasi terakhir</span></div>
+    </button>
+  </div>
+  <div class="drawer__section">
+    <div class="drawer__label">Tools Kreatif</div>
+    <button class="drawer__item" id="menuCapcut">
+      <div class="drawer__item-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+      <div class="drawer__item-text">CapCut Templates<span>Cari template video & image</span></div>
+    </button>
+    <button class="drawer__item" id="menuApkBuilder">
+      <div class="drawer__item-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16 3 22l4-2 4 2-2-6"/><path d="M13 8 11 4l-4 2 2 6"/><rect x="8" y="8" width="13" height="13" rx="2"/></svg></div>
+      <div class="drawer__item-text">Web to APK<span>Convert website jadi APK</span></div>
+    </button>
+    <button class="drawer__item" id="menuMusic">
+      <div class="drawer__item-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="drawer__item-text">YouTube Music<span>Cari & dengar musik</span></div>
+    </button>
+    <button class="drawer__item" id="menuAI">
+      <div class="drawer__item-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
+      <div class="drawer__item-text">AI Image<span>Generate gambar dari text</span></div>
+    </button>
+  </div>
+  <div class="drawer__section">
+    <div class="drawer__label">Informasi</div>
+    <button class="drawer__item" id="menuAbout">
+      <div class="drawer__item-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+      <div class="drawer__item-text">Tentang Web<span>Info aplikasi</span></div>
+    </button>
+    <button class="drawer__item" id="menuFeatures">
+      <div class="drawer__item-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="drawer__item-text">Fitur Keren<span>Semua yang bisa dilakukan</span></div>
+    </button>
+    <button class="drawer__item" id="menuHelp">
+      <div class="drawer__item-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+      <div class="drawer__item-text">Bantuan<span>Cara pakai & FAQ</span></div>
+    </button>
+    <button class="drawer__item" id="menuShortcut">
+      <div class="drawer__item-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01"/><path d="M10 10h.01"/><path d="M14 10h.01"/><path d="M18 10h.01"/><path d="M6 14h12"/></svg></div>
+      <div class="drawer__item-text">Keyboard Shortcut<span>Shortcut cepat</span></div>
+    </button>
+  </div>
+  <div class="drawer__section">
+    <div class="drawer__label">Lainnya</div>
+    <button class="drawer__item" id="menuClearHistory">
+      <div class="drawer__item-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+      <div class="drawer__item-text">Hapus Riwayat<span>Reset semua data</span></div>
+    </button>
+  </div>
+  <div class="drawer__section">
+    <div class="drawer__label">Community</div>
+    <a href="https://whatsapp.com/channel/0029VbDz1xsEQIau8FQEtF16" target="_blank" rel="noopener" class="drawer__item" style="text-decoration:none">
+      <div class="drawer__item-icon" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.25);color:#25D366">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </div>
+      <div class="drawer__item-text">Channel WhatsApp<span>Info update terbaru</span></div>
+      <div class="drawer__item-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></div>
+    </a>
+  </div>
+  <div class="drawer__footer">v7.3 · Made by <b style="color:var(--acc)">Azure</b></div>
+</aside>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title" id="modalTitle">Tentang</div>
+      <button class="modal__close" id="modalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
   </div>
 </div>
 
-<div class="panel" id="p1">
-  <h2>masukkan email</h2>
-  <p class="hint">link login dikirim ke email, tanpa password.</p>
-  <label>email</label>
-  <input id="em" type="email" placeholder="nama@email.com">
-  <button id="b1">kirim link &rarr;</button>
-  <div id="m1" class="msg"></div>
-</div>
-
-<div class="panel hide" id="p2">
-  <h2>tempel link</h2>
-  <p class="hint">link terkirim ke <span id="w-em" style="color:var(--txt)">-</span>. copy link dari email, paste di sini.</p>
-  <label>link verifikasi</label>
-  <input id="lk" type="text" placeholder="https://... atau oobCode">
-  <button id="b2">&larr; kembali</button>
-  <button id="b3">verifikasi &rarr;</button>
-  <div id="m2" class="msg"></div>
-</div>
-
-<div class="panel hide" id="p3">
-  <h2 style="color:var(--acc)">premium aktif</h2>
-  <p class="hint">detail akun di bawah, token bisa dicopy.</p>
-  <div class="kv"><b>email</b><span id="r-em">-</span></div>
-  <div class="kv"><b>uid</b><span id="r-uid">-</span></div>
-  <div class="kv"><b>order</b><span id="r-ord">-</span></div>
-  <div style="margin-top:12px">
-    <label>id token</label>
-    <div class="tok" id="r-tok">-</div>
-    <button class="tiny sec" id="b4">copy token</button>
-    <button class="tiny sec" id="b5">aktivasi lain</button>
+<div class="modal-overlay" id="inboxModalOverlay">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title">📬 Inbox</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="icon-btn" id="inboxRefresh" title="Refresh" style="width:32px;height:32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></button>
+        <button class="modal__close" id="inboxModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="modal__body">
+      <div class="inbox-email-box">
+        <div class="inbox-email-box__label">Email Aktif</div>
+        <div class="inbox-email-box__row">
+          <code class="inbox-email-box__code" id="inboxEmailText">— belum ada —</code>
+          <button class="icon-btn" id="inboxCopyEmail" style="width:32px;height:32px;flex:none" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
+      </div>
+      <div class="inbox-header"><span class="inbox-header__label">Pesan Masuk</span><span class="inbox-header__count" id="inboxCount">0</span></div>
+      <div class="inbox-list" id="inboxList"><div class="inbox-empty">Belum ada pesan</div></div>
+    </div>
   </div>
 </div>
 
-<footer>unofficial &middot; reverse engineered &middot; use at your own risk</footer>
-
+<div class="modal-overlay" id="capcutModalOverlay">
+  <div class="modal" style="max-width: 480px">
+    <div class="modal__head">
+      <div class="modal__title">🎬 CapCut Templates</div>
+      <button class="modal__close" id="capcutModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="capcut-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Cari template CapCut viral untuk edit video kamu
+      </div>
+      <div class="capcut-search">
+        <input id="capcutKeyword" placeholder="Cari template (aesthetic, travel)..." />
+        <button id="capcutSearchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Cari</button>
+      </div>
+      <div class="capcut-tabs">
+        <button class="capcut-tab active" data-tab="video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Video</button>
+        <button class="capcut-tab" data-tab="image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Image</button>
+      </div>
+      <div class="capcut-grid" id="capcutGrid"><div class="capcut-empty">🔍 Ketik keyword lalu klik Cari</div></div>
+      <div class="msg" id="capcutMsg"></div>
+    </div>
+  </div>
 </div>
+
+<div class="modal-overlay" id="apkModalOverlay">
+  <div class="modal" style="max-width: 520px">
+    <div class="modal__head">
+      <div class="modal__title">📦 Web to APK Builder</div>
+      <button class="modal__close" id="apkModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="capcut-info" style="background:var(--violet-soft);border-color:rgba(180,139,255,0.18);color:var(--violet)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Ubah website jadi aplikasi Android (.apk) secara gratis
+      </div>
+      <div class="apk-form-grid">
+        <div class="field field-full">
+          <div class="field__label"><span>Website URL</span><span class="field__hint">wajib</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><input id="apkUrl" type="url" placeholder="https://example.com" autocomplete="off" spellcheck="false"></div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>Nama App</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><input id="apkName" type="text" placeholder="MyApp" autocomplete="off" maxlength="30"></div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>Package Name</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><input id="apkPkg" type="text" placeholder="com.example.app" autocomplete="off" spellcheck="false"></div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>Version Name</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M2 12h20"/></svg><input id="apkVer" type="text" placeholder="1.0" value="1.0" maxlength="12"></div>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>Version Code</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg><input id="apkVerCode" type="number" placeholder="1" value="1" min="1"></div>
+        </div>
+        <div class="field field-full">
+          <div class="field__label"><span>Icon URL</span><span class="field__hint">opsional</span></div>
+          <div class="field__wrapper"><svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg><input id="apkIcon" type="url" placeholder="https://.../icon.png" autocomplete="off" spellcheck="false"></div>
+        </div>
+      </div>
+      <div class="field__label" style="margin-bottom:8px"><span>Orientation</span></div>
+      <div class="apk-options" id="apkOrientation">
+        <button class="apk-option on" data-val="auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>Auto</button>
+        <button class="apk-option" data-val="portrait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>Portrait</button>
+        <button class="apk-option" data-val="landscape"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>Landscape</button>
+      </div>
+      <div class="field__label" style="margin-bottom:8px"><span>Splash Type</span></div>
+      <div class="apk-options" id="apkSplash">
+        <button class="apk-option on" data-val="image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>Image</button>
+        <button class="apk-option" data-val="text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Text</button>
+      </div>
+      <button class="btn btn--primary" id="apkBuildBtn">
+        <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Build APK Sekarang
+      </button>
+      <div class="apk-progress" id="apkProgress">
+        <div class="apk-progress__label"><span id="apkProgressLabel">Menyiapkan build...</span><span id="apkProgressPct">0%</span></div>
+        <div class="apk-progress__track"><div class="apk-progress__fill" id="apkProgressFill"></div></div>
+        <div class="apk-progress__steps" id="apkProgressSteps">
+          <div class="apk-progress__step"><span class="apk-progress__step-dot"></span>Validasi input & proxy pool</div>
+          <div class="apk-progress__step"><span class="apk-progress__step-dot"></span>Upload form & icon ke server</div>
+          <div class="apk-progress__step"><span class="apk-progress__step-dot"></span>Build APK di server (60-120s)</div>
+          <div class="apk-progress__step"><span class="apk-progress__step-dot"></span>Selesai! Generate download link</div>
+        </div>
+      </div>
+      <div class="apk-result" id="apkResult">
+        <div class="apk-result__head">
+          <div class="apk-result__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div style="flex:1;min-width:0"><div class="apk-result__title">APK Berhasil Dibuild!</div><div class="apk-result__sub" id="apkResultFile">—</div></div>
+        </div>
+        <div class="apk-result__meta">
+          <div class="apk-result__meta-item"><div class="apk-result__meta-label">Size</div><div class="apk-result__meta-value" id="apkResultSize">—</div></div>
+          <div class="apk-result__meta-item"><div class="apk-result__meta-label">Build ID</div><div class="apk-result__meta-value" id="apkResultId">—</div></div>
+        </div>
+        <div class="apk-result__actions">
+          <button class="btn btn--primary" id="apkDownloadBtn"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download APK</button>
+          <button class="btn btn--secondary" id="apkCopyLinkBtn" style="padding:14px 16px;width:auto"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
+      </div>
+      <div class="msg" id="apkMsg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="musicModalOverlay">
+  <div class="modal" style="max-width: 500px">
+    <div class="modal__head">
+      <div class="modal__title">🎵 YouTube Music</div>
+      <button class="modal__close" id="musicModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="capcut-info" style="background:var(--blue-soft);border-color:rgba(107,184,255,0.18);color:var(--blue)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        Cari lagu atau paste URL YouTube — play langsung di web
+      </div>
+      <div class="music-search">
+        <input id="musicQuery" placeholder="Judul lagu atau URL YouTube..." />
+        <button id="musicSearchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Cari</button>
+      </div>
+      <div class="music-player" id="musicPlayer">
+        <div class="music-player__head">
+          <div class="music-player__thumb" id="musicThumb"><img id="musicThumbImg" src="" alt=""></div>
+          <div class="music-player__info">
+            <div class="music-player__title" id="musicTitle">—</div>
+            <div class="music-player__meta">
+              <span class="music-player__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:9px;height:9px"><circle cx="12" cy="12" r="10"/></svg><span id="musicDuration">0:00</span></span>
+              <span id="musicSource" style="font-family:var(--mono);font-size:10px">youtube</span>
+            </div>
+          </div>
+        </div>
+        <audio id="musicAudio" controls preload="none"></audio>
+        <div class="music-player__actions">
+          <button class="btn btn--secondary" id="musicDownload"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>
+          <button class="btn btn--secondary" id="musicCopy"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
+        </div>
+      </div>
+      <div class="msg" id="musicMsg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="aiModalOverlay">
+  <div class="modal" style="max-width: 520px">
+    <div class="modal__head">
+      <div class="modal__title">🎨 AI Image Generator</div>
+      <button class="modal__close" id="aiModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="capcut-info" style="background:var(--pink-soft);border-color:rgba(255,107,157,0.18);color:var(--pink)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        Generate gambar dari text. Support model realistic.
+      </div>
+      <div class="ai-form">
+        <textarea id="aiPrompt" placeholder="Deskripsi gambar, contoh: (masterpiece), 1girl, cinematic lighting, ultra detailed"></textarea>
+        <div class="ai-presets">
+          <button class="ai-preset" data-prompt="(masterpiece, best quality), 1girl, cinematic lighting, detailed face, professional photography">Portrait</button>
+          <button class="ai-preset" data-prompt="(masterpiece, best quality), landscape, sunset, mountain, dramatic sky, ultra detailed">Landscape</button>
+          <button class="ai-preset" data-prompt="(masterpiece, best quality), cyberpunk city, neon lights, rain, cinematic">Cyberpunk</button>
+          <button class="ai-preset" data-prompt="(masterpiece, best quality), anime style, cute girl, cherry blossom, soft lighting">Anime</button>
+          <button class="ai-preset" data-prompt="(masterpiece, best quality), realistic photo, natural lighting, 8k, ultra hd">Realistic</button>
+        </div>
+        <div class="field">
+          <div class="field__label"><span>Negative Prompt</span><span class="field__hint">opsional</span></div>
+          <textarea id="aiNegative" placeholder="(worst quality, low quality:1.4), deformed, ugly, bad anatomy" style="min-height:50px;font-size:12px"></textarea>
+        </div>
+      </div>
+      <button class="btn btn--primary" id="aiGenerateBtn">
+        <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        Generate Image
+      </button>
+      <div class="ai-image-grid" id="aiImageGrid"></div>
+      <div class="msg" id="aiMsg"></div>
+    </div>
+  </div>
+</div>
+
+<main class="container" id="container">
+
+  <section class="hero">
+    <h1 class="hero__title">Semua tool kreatif kamu <span>dalam satu web</span></h1>
+    <p class="hero__sub">Aktivasi Alight Motion Premium, cari template CapCut, convert web ke APK, cari musik YouTube, dan generate AI image — <strong>gratis tanpa iklan</strong>.</p>
+    <div class="hero__badges">
+      <div class="hero__badge green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>100% Gratis</div>
+      <div class="hero__badge blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>Tanpa Tracking</div>
+      <div class="hero__badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Update Mingguan</div>
+    </div>
+  </section>
+
+  <section class="landing-tutorial">
+    <div class="landing-tutorial__title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>Cara Pakai — 3 Langkah</div>
+    <div class="landing-tutorial__sub">Aktivasi Alight Motion Premium dalam 30 detik.</div>
+    <div class="tutorial-steps">
+      <div class="tutorial-step"><div class="tutorial-step__num">1</div><div class="tutorial-step__body"><div class="tutorial-step__title">Masukkan Email</div><div class="tutorial-step__desc">Pakai email pribadi, atau klik <code>Generate Email</code> untuk email random anonim.</div></div></div>
+      <div class="tutorial-step"><div class="tutorial-step__num">2</div><div class="tutorial-step__body"><div class="tutorial-step__title">Kirim & Verifikasi Link</div><div class="tutorial-step__desc">Klik <code>Kirim Link</code>. Link magic akan datang ke inbox. Copy atau auto-verify langsung.</div></div></div>
+      <div class="tutorial-step"><div class="tutorial-step__num">3</div><div class="tutorial-step__body"><div class="tutorial-step__title">Premium Aktif! 🎉</div><div class="tutorial-step__desc">UID + ID Token muncul. Akun Alight Motion kamu sudah premium.</div></div></div>
+    </div>
+  </section>
+
+  <section class="features-showcase">
+    <div class="features-showcase__head">
+      <div class="features-showcase__title">Fitur <span>Lengkap</span></div>
+      <div class="features-showcase__sub">Semua yang bisa kamu lakukan di sini</div>
+    </div>
+    <div class="feature-cards">
+      <div class="feature-tile" data-open="am"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div><div class="feature-tile__title">AM Premium</div><div class="feature-tile__desc">Aktivasi Alight Motion tanpa bayar</div></div>
+      <div class="feature-tile amber" data-open="capcut"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="feature-tile__title">CapCut Templates</div><div class="feature-tile__desc">Cari template viral untuk edit video</div></div>
+      <div class="feature-tile violet" data-open="apk"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 16 3 22l4-2 4 2-2-6"/><path d="M13 8 11 4l-4 2 2 6"/><rect x="8" y="8" width="13" height="13" rx="2"/></svg></div><div class="feature-tile__title">Web to APK</div><div class="feature-tile__desc">Convert website jadi Android app</div></div>
+      <div class="feature-tile blue" data-open="music"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="feature-tile__title">YouTube Music</div><div class="feature-tile__desc">Cari & dengar musik langsung</div><span class="feature-tile__badge new">NEW</span></div>
+      <div class="feature-tile pink" data-open="ai"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div><div class="feature-tile__title">AI Image</div><div class="feature-tile__desc">Generate gambar dari text prompt</div><span class="feature-tile__badge new">NEW</span></div>
+      <div class="feature-tile" data-open="inbox"><div class="feature-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="feature-tile__title">Inbox Viewer</div><div class="feature-tile__desc">Cek email masuk real-time</div></div>
+    </div>
+  </section>
+
+  <div class="steps-wrap">
+    <div class="steps">
+      <div class="step on" id="n1" data-step="1"><span class="step__num">1</span><span>Email</span></div>
+      <div class="step" id="n2" data-step="2"><span class="step__num">2</span><span>Link</span></div>
+      <div class="step" id="n3" data-step="3"><span class="step__num">3</span><span>Done</span></div>
+    </div>
+    <div class="steps-progress"><div class="steps-progress__fill" id="stepsProgress" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat stat--green"><div class="stat__head"><div class="stat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div><span class="stat__label">Total</span></div><div class="stat__value" id="st-total">—</div></div>
+    <div class="stat stat--blue"><div class="stat__head"><div class="stat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><span class="stat__label">Hari Ini</span></div><div class="stat__value" id="st-today">—</div></div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="panel__head">
+      <div class="panel__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+      <div class="panel__title">Pilih Email</div>
+    </div>
+    <p class="panel__hint">Pilih mode: gunakan <strong>email pribadi</strong> atau <strong>generate email random</strong> untuk anonim.</p>
+
+    <div class="email-tabs">
+      <button class="email-tab active" id="tabManual"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Email Pribadi</button>
+      <button class="email-tab" id="tabRandom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Email Random</button>
+    </div>
+
+    <div id="manualMode">
+      <div class="field">
+        <div class="field__label"><span>Alamat Email</span><span class="field__hint" id="emailHint">Wajib aktif</span></div>
+        <div class="field__wrapper">
+          <svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+          <input id="em" type="email" placeholder="nama@email.com" autocomplete="email" inputmode="email">
+        </div>
+      </div>
+    </div>
+
+    <div id="randomMode" class="hide">
+      <div class="field">
+        <div class="field__label"><span>Email Random</span><span class="field__hint" id="randomHint">Klik generate</span></div>
+        <div class="field__wrapper">
+          <svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input id="emRandom" type="email" placeholder="Klik tombol generate di bawah" readonly>
+        </div>
+      </div>
+      <button class="btn btn--ghost" id="btnGenerate"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>Generate Email Baru</button>
+      <button class="btn btn--ghost hide" id="btnCopyEmail" style="margin-top:8px"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Email</button>
+      <button class="btn btn--ghost" id="btnOpenInbox" style="margin-top:8px"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Buka Inbox</button>
+    </div>
+
+    <button class="btn btn--primary" id="b1">Kirim Link<svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+    <div class="msg" id="m1"></div>
+
+    <div class="terminal-wrap" id="terminal">
+      <div class="terminal-head">
+        <div class="terminal-head__left">
+          <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+          <span class="terminal-title">oaa-activate@system:~$</span>
+        </div>
+        <span class="terminal-status" id="terminalStatus">IDLE</span>
+      </div>
+      <div class="terminal-body" id="terminalBody">
+        <div class="terminal-line terminal-line--info"><span class="terminal-line__prefix">[SYS]</span><span class="terminal-line__text">Terminal ready. Waiting for action...</span></div>
+      </div>
+      <div class="terminal-foot">
+        <div class="terminal-foot__left">
+          <div class="terminal-foot__item green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/></svg><span id="termCount">0</span> logs</div>
+          <div class="terminal-foot__item blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/></svg><span id="termTime">0.0s</span></div>
+        </div>
+        <button class="terminal-clear" id="terminalClear">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel hide" id="p2">
+    <div class="panel__head">
+      <div class="panel__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+      <div class="panel__title">Verifikasi Link</div>
+    </div>
+    <p class="panel__hint">Link terkirim ke <strong id="w-em">—</strong>. <span id="step2Hint">Copy link dari email, lalu tempel di bawah ini.</span></p>
+
+    <div class="poll-status" id="pollStatus">
+      <div class="poll-status__dot"></div>
+      <span id="pollText">Menunggu email masuk...</span>
+      <span class="poll-status__timer" id="pollTimer">0s</span>
+    </div>
+
+    <div class="field">
+      <div class="field__label"><span>Link Verifikasi</span><span class="field__hint">https://... atau oobCode</span></div>
+      <div class="field__wrapper">
+        <svg class="field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <input id="lk" type="text" placeholder="Paste link di sini..." autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--secondary" id="b2"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Kembali</button>
+      <button class="btn btn--primary" id="b3">Verifikasi<svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="msg" id="m2"></div>
+  </div>
+
+  <div class="panel hide" id="p3">
+    <div class="result__hero">
+      <div class="result__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="result__hero-text"><h3>Premium Aktif!</h3><p>Akun kamu sudah terverifikasi. Enjoy the premium features.</p></div>
+    </div>
+    <div class="kv-list">
+      <div class="kv"><span class="kv__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Email</span><span class="kv__value" id="r-em">—</span></div>
+      <div class="kv"><span class="kv__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>UID</span><span class="kv__value" id="r-uid">—</span></div>
+      <div class="kv"><span class="kv__label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Order</span><span class="kv__value kv__value--accent" id="r-ord">—</span></div>
+    </div>
+    <div class="token-section">
+      <div class="token-section__head"><span class="token-section__label">ID Token</span><span class="token-section__badge">SENSITIVE</span></div>
+      <div class="token-box" id="r-tok">—</div>
+      <div class="token-actions">
+        <button class="btn btn--secondary btn--tiny" id="b4"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Token</button>
+        <button class="btn btn--secondary btn--tiny" id="b5"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Aktivasi Lagi</button>
+      </div>
+      <div class="share-actions">
+        <button class="btn btn--secondary btn--tiny" id="shareBtn"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
+        <button class="btn btn--secondary btn--tiny" id="copyAllBtn"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Copy All</button>
+        <button class="btn btn--secondary btn--tiny" id="downloadBtn"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="history" id="historyBox">
+    <div class="history__head"><span class="history__title">Riwayat Aktivasi</span><button class="history__clear" id="clearHistory">Hapus Semua</button></div>
+    <div class="history__list" id="historyList"><div class="history__empty">Belum ada riwayat aktivasi</div></div>
+  </div>
+
+  <footer class="footer">
+    <b style="color:var(--acc);opacity:1;font-size:12px;font-weight:800;letter-spacing:0.02em">Omni Azure Asahiro</b><br>
+    unofficial · reverse engineered<br>
+    <b>use at your own risk</b>
+    <br>
+    <a href="https://whatsapp.com/channel/0029VbDz1xsEQIau8FQEtF16" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 16px;border-radius:100px;background:linear-gradient(145deg,rgba(37,211,102,0.12),rgba(37,211,102,0.04));border:1px solid rgba(37,211,102,0.3);color:#25D366;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:0.02em;transition:all 0.25s cubic-bezier(0.32,0.72,0,1)">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Join Channel WhatsApp Resmi
+    </a>
+    <div class="footer__badge" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>SECURE CONNECTION</div>
+  </footer>
+
+</main>
 
 <script>
-const $ = i => document.getElementById(i)
+/* ═══════════════════════════════════════════
+   OMNI AZURE ASAHIRO v7.3
+   ═══════════════════════════════════════════ */
 
-fetch('/api/stats').then(r => r.json()).then(j => {
-  $('st-total').textContent = Number(j.total || 0).toLocaleString('id-ID')
-  $('st-today').textContent = Number(j.today || 0).toLocaleString('id-ID')
-}).catch(() => {})
+const $ = id => document.getElementById(id)
+const API_BASE = '/api'
+const DUCKZ_API = 'https://duckzmail.com/api'
 
-const step = n => {
-  for (let i = 1; i <= 3; i++) {
-    $('p' + i).classList.toggle('hide', i !== n)
-    $('n' + i).className = i < n ? 'done' : (i === n ? 'on' : '')
+/* ═══ SOUND FX ═══ */
+const SoundFX = (() => {
+  let ctx = null
+  let enabled = localStorage.getItem('sfx') !== 'off'
+  function init() { if (ctx) return ctx; try { ctx = new (window.AudioContext || window.webkitAudioContext)() } catch { enabled = false } return ctx }
+  function tone({ freq = 440, dur = 0.08, type = 'sine', vol = 0.05, freqEnd = null } = {}) {
+    if (!enabled) return
+    const c = init(); if (!c) return
+    if (c.state === 'suspended') c.resume()
+    const t = c.currentTime
+    const osc = c.createOscillator(); const gain = c.createGain()
+    osc.type = type; osc.frequency.setValueAtTime(freq, t)
+    if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t + dur)
+    gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(vol, t + 0.005); gain.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.08)
+    osc.connect(gain); gain.connect(c.destination); osc.start(t); osc.stop(t + dur + 0.1)
+  }
+  return {
+    init, enable(v) { enabled = !!v; localStorage.setItem('sfx', v ? 'on' : 'off') }, isEnabled() { return enabled },
+    tap() { tone({ freq: 900, dur: 0.04, vol: 0.04 }) }, hover() { tone({ freq: 1400, dur: 0.02, vol: 0.015 }) },
+    focus() { tone({ freq: 700, dur: 0.05, type: 'triangle', vol: 0.03, freqEnd: 1100 }) },
+    key() { tone({ freq: 1600, dur: 0.015, type: 'square', vol: 0.008 }) },
+    success() { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => tone({ freq: f, dur: 0.1, vol: 0.06 }), i * 90)) },
+    error() { setTimeout(() => tone({ freq: 300, dur: 0.12, type: 'sawtooth', vol: 0.05 }), 0); setTimeout(() => tone({ freq: 200, dur: 0.18, type: 'sawtooth', vol: 0.05 }), 120) },
+    notify() { setTimeout(() => tone({ freq: 880, dur: 0.08, vol: 0.05 }), 0); setTimeout(() => tone({ freq: 1320, dur: 0.12, vol: 0.05 }), 100) },
+    whoosh() { tone({ freq: 200, dur: 0.4, vol: 0.04, freqEnd: 1200 }) },
+    levelUp() { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => tone({ freq: f, dur: 0.15, vol: 0.05 }), i * 60)) }
+  }
+})()
+
+/* ═══ PARTICLES ═══ */
+;(function() {
+  const canvas = $('particles'); const ctx = canvas.getContext('2d')
+  let particles = []; let w, h
+  function resize() { w = canvas.width = window.innerWidth * devicePixelRatio; h = canvas.height = window.innerHeight * devicePixelRatio; canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px' }
+  function create() {
+    const count = Math.min(45, Math.floor((window.innerWidth * window.innerHeight) / 28000))
+    particles = []
+    for (let i = 0; i < count; i++) particles.push({ x: Math.random() * w, y: Math.random() * h, r: Math.random() * 1.4 * devicePixelRatio + 0.25, vx: (Math.random() - 0.5) * 0.12 * devicePixelRatio, vy: (Math.random() - 0.5) * 0.12 * devicePixelRatio, alpha: Math.random() * 0.35 + 0.08, hue: Math.random() > 0.7 ? 150 : (Math.random() > 0.5 ? 200 : 280) })
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h)
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${p.alpha})`; ctx.fill()
+    })
+    requestAnimationFrame(draw)
+  }
+  resize(); create(); draw(); window.addEventListener('resize', () => { resize(); create() })
+})()
+
+/* ═══ CONFETTI ═══ */
+const Confetti = (() => {
+  const canvas = $('confetti'); const ctx = canvas.getContext('2d')
+  let particles = []; let active = false
+  function resize() { canvas.width = window.innerWidth * devicePixelRatio; canvas.height = window.innerHeight * devicePixelRatio; canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px' }
+  function burst(count = 100) {
+    active = true; const w = canvas.width; const h = canvas.height
+    const colors = ['#7cffb2', '#22d3a0', '#6bb8ff', '#b48bff', '#ff6b9d', '#ffcb6b']
+    for (let i = 0; i < count; i++) particles.push({ x: w / 2 + (Math.random() - 0.5) * w * 0.3, y: h * 0.4, vx: (Math.random() - 0.5) * 14 * devicePixelRatio, vy: (Math.random() - 1) * 12 * devicePixelRatio, size: (Math.random() * 6 + 3) * devicePixelRatio, color: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI * 2, vrot: (Math.random() - 0.5) * 0.3, life: 1 })
+    if (!active) loop()
+  }
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    particles = particles.filter(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.4 * devicePixelRatio; p.vx *= 0.99; p.rot += p.vrot; p.life -= 0.008
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore()
+      return p.life > 0 && p.y < canvas.height + 50
+    })
+    if (particles.length > 0) requestAnimationFrame(loop); else { active = false; ctx.clearRect(0, 0, canvas.width, canvas.height) }
+  }
+  resize(); window.addEventListener('resize', resize); return { burst }
+})()
+
+/* ═══ TOAST ═══ */
+const Toast = (() => {
+  const el = $('toast'); const title = $('toastTitle'); const desc = $('toastDesc'); let timer = null
+  return { show(t, d, duration = 3500) { title.textContent = t; desc.textContent = d; el.classList.add('show'); if (timer) clearTimeout(timer); timer = setTimeout(() => el.classList.remove('show'), duration) } }
+})()
+
+/* ═══ TERMINAL ═══ */
+const Terminal = (() => {
+  const wrap = $('terminal'); const body = $('terminalBody'); const status = $('terminalStatus'); const countEl = $('termCount'); const timeEl = $('termTime')
+  let logCount = 0; let sessionStart = 0; let timerInterval = null; let visible = false
+  function show() { wrap.classList.add('show'); visible = true }
+  function hide() { wrap.classList.remove('show'); visible = false }
+  function toggle() { if (visible) hide(); else show(); return visible }
+  function clear() { body.innerHTML = ''; logCount = 0; countEl.textContent = '0'; log('SYS', 'Terminal cleared', 'info') }
+  function startTimer() { sessionStart = Date.now(); if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(() => { timeEl.textContent = ((Date.now() - sessionStart) / 1000).toFixed(1) + 's' }, 100) }
+  function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null } }
+  function setStatus(text, type = 'info') {
+    status.textContent = text.toUpperCase()
+    const bg = type === 'err' ? 'var(--red-soft)' : type === 'warn' ? 'var(--amber-soft)' : type === 'ok' ? 'var(--acc-soft)' : 'var(--blue-soft)'
+    const col = type === 'err' ? 'var(--red)' : type === 'warn' ? 'var(--amber)' : type === 'ok' ? 'var(--acc)' : 'var(--blue)'
+    status.style.background = bg; status.style.color = col
+  }
+  function log(prefix, text, type = 'info') {
+    logCount++; countEl.textContent = logCount
+    const div = document.createElement('div'); div.className = `terminal-line terminal-line--${type}`
+    div.innerHTML = `<span class="terminal-line__prefix">[${prefix}]</span><span class="terminal-line__text">${text}</span>`
+    body.appendChild(div); body.scrollTop = body.scrollHeight
+    while (body.children.length > 50) body.removeChild(body.firstChild)
+  }
+  return { show, hide, toggle, clear, log, startTimer, stopTimer, setStatus, isVisible: () => visible }
+})()
+
+$('terminalClear').addEventListener('click', () => Terminal.clear())
+$('terminalToggle').addEventListener('click', () => { const v = Terminal.toggle(); $('terminalToggle').classList.toggle('has-badge', v); SoundFX.tap() })
+
+/* ═══ LOADER ═══ */
+;(function() {
+  const bar = $('loaderBar'); const percent = $('loaderPercent'); const loader = $('loader'); const container = $('container')
+  const stages = [8, 22, 38, 55, 72, 88, 100]; let i = 0
+  const tick = () => {
+    if (i < stages.length) {
+      bar.style.width = stages[i] + '%'
+      percent.textContent = stages[i] + '%'
+      i++
+      setTimeout(tick, 280 + Math.random() * 220)
+    } else {
+      setTimeout(() => {
+        loader.classList.add('done')
+        container.classList.add('ready')
+        document.body.classList.remove('locked')
+        SoundFX.whoosh()
+        setTimeout(() => { SoundFX.notify(); Toast.show('Welcome!', 'Omni Azure Asahiro v7.3 ready') }, 450)
+        Terminal.log('SYS', 'Application initialized', 'ok')
+        Terminal.log('SYS', 'Omni Azure Asahiro — v7.3.0', 'info')
+        Terminal.log('SYS', 'Channel: whatsapp.com/channel/0029VbDz1xsEQIau8FQEtF16', 'info')
+        Terminal.setStatus('Ready', 'ok')
+      }, 400)
+    }
+  }
+  setTimeout(tick, 300)
+})()
+
+/* ═══ DRAWER ═══ */
+const drawer = $('drawer'); const drawerOverlay = $('drawerOverlay')
+function openDrawer() { drawer.classList.add('open'); drawerOverlay.classList.add('open'); document.body.classList.add('locked'); SoundFX.tap() }
+function closeDrawer() { drawer.classList.remove('open'); drawerOverlay.classList.remove('open'); document.body.classList.remove('locked') }
+$('menuBtn').addEventListener('click', openDrawer)
+$('drawerClose').addEventListener('click', closeDrawer)
+drawerOverlay.addEventListener('click', closeDrawer)
+
+/* ═══ MODAL ═══ */
+const modal = $('modalOverlay'); const modalTitle = $('modalTitle'); const modalBody = $('modalBody')
+function openModal(title, html) { modalTitle.textContent = title; modalBody.innerHTML = html; modal.classList.add('open'); document.body.classList.add('locked') }
+function closeModal() { modal.classList.remove('open'); document.body.classList.remove('locked') }
+$('modalClose').addEventListener('click', closeModal)
+modal.addEventListener('click', e => { if (e.target === modal) closeModal() })
+
+const MODALS = {
+  about: { title: '📖 Tentang Web', html: `<h4>Omni Azure Asahiro v7.3</h4><p>Web serba bisa: aktivasi Alight Motion Premium, CapCut templates, Web to APK, YouTube Music, AI Image generator — semua gratis.</p><h4>Channel Resmi</h4><p>Ikuti update di <a href="https://whatsapp.com/channel/0029VbDz1xsEQIau8FQEtF16" target="_blank">WhatsApp Channel</a>.</p><h4>Keamanan</h4><p>Tidak menyimpan data. Semua proses di browser.</p><h4>Disclaimer</h4><p>Layanan unofficial. Gunakan dengan risiko sendiri.</p>` },
+  features: { title: '⭐ Fitur Keren', html: `<p>Semua yang bisa kamu lakukan:</p><div class="feature-grid"><div class="feature-card"><div class="feature-card__icon green">✅</div><div class="feature-card__title">AM Premium</div><div class="feature-card__desc">Aktivasi gratis</div></div><div class="feature-card"><div class="feature-card__icon amber">🎬</div><div class="feature-card__title">CapCut</div><div class="feature-card__desc">Cari template viral</div></div><div class="feature-card"><div class="feature-card__icon violet">📦</div><div class="feature-card__title">Web to APK</div><div class="feature-card__desc">Website jadi app</div></div><div class="feature-card"><div class="feature-card__icon blue">🎵</div><div class="feature-card__title">YouTube Music</div><div class="feature-card__desc">Streaming audio</div></div><div class="feature-card"><div class="feature-card__icon pink">🎨</div><div class="feature-card__title">AI Image</div><div class="feature-card__desc">Text to image</div></div><div class="feature-card"><div class="feature-card__icon green">📬</div><div class="feature-card__title">Inbox</div><div class="feature-card__desc">Cek email real-time</div></div></div>` },
+  help: { title: '❓ Bantuan', html: `<h4>Cara Pakai AM Premium</h4><ul><li>Pilih mode email</li><li>Klik Generate (kalau random)</li><li>Klik Kirim Link</li><li>Cek Inbox → klik email</li><li>Klik Auto-Verify → DONE!</li></ul><h4>CapCut Templates</h4><ul><li>Menu → CapCut Templates</li><li>Ketik keyword → Cari</li><li>Pilih Video / Image tab</li></ul><h4>Web to APK</h4><ul><li>Menu → Web to APK</li><li>Isi URL + Nama App + Package Name</li><li>Klik Build (tunggu 60-120s)</li></ul><h4>YouTube Music</h4><ul><li>Menu → YouTube Music</li><li>Cari judul lagu</li><li>Auto play di web</li></ul><h4>AI Image</h4><ul><li>Menu → AI Image</li><li>Ketik prompt atau pilih preset</li><li>Klik Generate (tunggu 30-120s)</li></ul>` },
+  shortcut: { title: '⌨️ Shortcut', html: `<p>Shortcut power user</p><ul><li><span class="kbd">Ctrl</span> + <span class="kbd">K</span> — Focus email</li><li><span class="kbd">Ctrl</span> + <span class="kbd">G</span> — Generate random</li><li><span class="kbd">Ctrl</span> + <span class="kbd">M</span> — Menu</li><li><span class="kbd">Ctrl</span> + <span class="kbd">T</span> — Terminal</li><li><span class="kbd">Ctrl</span> + <span class="kbd">I</span> — Inbox</li><li><span class="kbd">Ctrl</span> + <span class="kbd">C</span> — CapCut</li><li><span class="kbd">Ctrl</span> + <span class="kbd">A</span> — Web to APK</li><li><span class="kbd">Ctrl</span> + <span class="kbd">P</span> — YouTube Music</li><li><span class="kbd">Ctrl</span> + <span class="kbd">Y</span> — AI Image</li><li><span class="kbd">Esc</span> — Back / Close</li></ul>` }
+}
+$('menuAbout').addEventListener('click', () => { closeDrawer(); setTimeout(() => openModal(MODALS.about.title, MODALS.about.html), 200) })
+$('menuFeatures').addEventListener('click', () => { closeDrawer(); setTimeout(() => openModal(MODALS.features.title, MODALS.features.html), 200) })
+$('menuHelp').addEventListener('click', () => { closeDrawer(); setTimeout(() => openModal(MODALS.help.title, MODALS.help.html), 200) })
+$('menuShortcut').addEventListener('click', () => { closeDrawer(); setTimeout(() => openModal(MODALS.shortcut.title, MODALS.shortcut.html), 200) })
+$('menuHome').addEventListener('click', () => { closeDrawer(); window.scrollTo({ top: 0, behavior: 'smooth' }) })
+$('menuTerminal').addEventListener('click', () => { closeDrawer(); Terminal.show() })
+$('menuInbox').addEventListener('click', () => { closeDrawer(); setTimeout(() => openInbox(), 250) })
+$('menuHistory').addEventListener('click', () => { closeDrawer(); setTimeout(() => $('historyBox').scrollIntoView({ behavior: 'smooth' }), 200) })
+$('menuClearHistory').addEventListener('click', () => { closeDrawer(); setTimeout(() => { if (confirm('Yakin hapus semua riwayat?')) { localStorage.removeItem(HISTORY_KEY); renderHistory(); Toast.show('Cleared!', 'Riwayat dihapus', 2000) } }, 200) })
+$('brandHome').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
+
+/* ═══ INBOX ═══ */
+const inboxModal = $('inboxModalOverlay')
+let inboxPollInterval = null
+let inboxCurrentView = 'list'
+
+function openInbox() {
+  inboxModal.classList.add('open')
+  document.body.classList.add('locked')
+  inboxCurrentView = 'list'
+  renderInboxEmail()
+  loadInbox()
+  if (inboxPollInterval) clearInterval(inboxPollInterval)
+  inboxPollInterval = setInterval(() => { if (inboxCurrentView === 'list') loadInbox() }, 5000)
+  SoundFX.tap()
+}
+function closeInbox() {
+  inboxModal.classList.remove('open')
+  document.body.classList.remove('locked')
+  if (inboxPollInterval) { clearInterval(inboxPollInterval); inboxPollInterval = null }
+}
+function renderInboxEmail() {
+  const em = randomEmailData?.email || emInput.value.trim() || ''
+  $('inboxEmailText').textContent = em || '— belum ada —'
+}
+async function loadInbox() {
+  inboxCurrentView = 'list'
+  const recipient = randomEmailData?.email || emInput.value.trim()
+  if (!recipient) {
+    $('inboxList').innerHTML = '<div class="inbox-empty">Belum ada email aktif. Generate dulu di Home.</div>'
+    $('inboxCount').textContent = '0'
+    return
+  }
+  try {
+    const r = await fetch(`${DUCKZ_API}/emails?recipient=${encodeURIComponent(recipient)}&limit=50`)
+    const j = await r.json()
+    const emails = j.emails || []
+    $('inboxCount').textContent = emails.length
+    if (!emails.length) { $('inboxList').innerHTML = '<div class="inbox-empty">Belum ada pesan masuk</div>'; return }
+    $('inboxList').innerHTML = emails.map(m => `
+      <div class="inbox-item" data-id="${m.id}">
+        <div class="inbox-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+        <div class="inbox-item__content">
+          <div class="inbox-item__sender">${escapeHtml(m.sender || 'Unknown')}</div>
+          <div class="inbox-item__subject">${escapeHtml(m.subject || '(No subject)')}</div>
+          <div class="inbox-item__time">${escapeHtml(m.received_at || '')}</div>
+        </div>
+        <div class="inbox-item__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></div>
+      </div>
+    `).join('')
+    $('inboxList').querySelectorAll('.inbox-item').forEach(el => {
+      el.addEventListener('click', async () => { SoundFX.tap(); await openInboxEmail(el.dataset.id) })
+    })
+  } catch (e) {
+    $('inboxList').innerHTML = `<div class="inbox-empty" style="color:var(--red)">Error: ${escapeHtml(e.message)}</div>`
   }
 }
-const say = (id, txt, ok) => {
-  const m = $(id)
-  m.textContent = txt
-  m.className = 'msg ' + (ok ? 'ok' : 'err')
-}
-const busy = (b, on, t) => { b.disabled = on; if (t) b.textContent = t }
-
-$('b1').onclick = async () => {
-  const em = $('em').value.trim()
-  if (!em.includes('@')) return say('m1', 'email gak valid', 0)
-  const b = $('b1'); busy(b, true, 'mengirim...')
+async function openInboxEmail(id) {
+  inboxCurrentView = 'detail'
+  $('inboxList').innerHTML = `<div class="inbox-empty" style="display:flex;flex-direction:column;gap:10px;align-items:center"><div class="btn__spinner" style="border-color:var(--acc);border-top-color:transparent;width:24px;height:24px;border-width:3px"></div><span>Memuat email...</span></div>`
+  $('inboxCount').textContent = '...'
   try {
-    const r = await fetch('/api/send-link', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ email: em }) })
+    const [metaRes, bodyRes] = await Promise.all([
+      fetch(`${DUCKZ_API}/emails/${encodeURIComponent(id)}`),
+      fetch(`${DUCKZ_API}/emails/${encodeURIComponent(id)}/body`)
+    ])
+    const meta = await metaRes.json()
+    const body = await bodyRes.json()
+    const sender = meta.sender || meta.headers?.From || 'Unknown'
+    const recipient = meta.recipient || 'Unknown'
+    const subject = meta.subject || meta.headers?.Subject || '(No Subject)'
+    const date = meta.received_at || meta.headers?.Date || 'Unknown'
+    const htmlContent = body.html || null
+    const textContent = body.text || null
+    const rawForLink = textContent || htmlContent || ''
+    const linkMatch = rawForLink.match(/https?:\/\/[^\s"<>]+alight[^\s"<>]*/i) || rawForLink.match(/https?:\/\/[^\s"<>]+oobCode[^\s"<>]+/i) || rawForLink.match(/https?:\/\/[^\s"<>]+/gi)?.[0]
+    const magicLink = linkMatch ? (Array.isArray(linkMatch) ? linkMatch[0] : linkMatch).trim() : null
+    let safeHtml = ''
+    if (htmlContent) {
+      safeHtml = htmlContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').replace(/\son\w+\s*=\s*"[^"]*"/gi, '').replace(/\son\w+\s*=\s*'[^']*'/gi, '').replace(/\son\w+\s*=\s*[^\s>]+/gi, '').replace(/javascript:/gi, '')
+    } else if (textContent) {
+      safeHtml = escapeHtml(textContent).replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+    }
+    $('inboxList').innerHTML = `
+      <button class="inbox-back" id="inboxBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Kembali ke Inbox</button>
+      <div class="email-view">
+        <div class="email-view__head">
+          <div class="email-view__subject">${escapeHtml(subject)}</div>
+          <div class="email-view__row"><span class="email-view__row-label">From</span><span class="email-view__row-value">${escapeHtml(sender)}</span></div>
+          <div class="email-view__row"><span class="email-view__row-label">To</span><span class="email-view__row-value">${escapeHtml(recipient)}</span></div>
+          <div class="email-view__row"><span class="email-view__row-label">Date</span><span class="email-view__row-value">${escapeHtml(date)}</span></div>
+        </div>
+        <div class="email-view__divider"></div>
+        <div class="email-view__body">${safeHtml || '<em style="color:#888">(Tidak ada konten)</em>'}</div>
+        <div class="email-view__actions">
+          ${magicLink ? `
+            <button class="btn btn--primary" id="verifyFromEmail"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Auto-Verify</button>
+            <button class="btn btn--secondary" id="copyFromEmail"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
+          ` : `<button class="btn btn--secondary" id="copyFromEmail" style="grid-column:span 2"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>Copy Email Body</button>`}
+        </div>
+      </div>`
+    $('inboxCount').textContent = '1'
+    $('inboxBack').addEventListener('click', () => { SoundFX.tap(); loadInbox() })
+    if (magicLink) {
+      $('verifyFromEmail').addEventListener('click', async () => {
+        SoundFX.tap()
+        try { await navigator.clipboard.writeText(magicLink) } catch {}
+        $('lk').value = magicLink
+        $('w-em').textContent = randomEmailData?.email || emInput.value.trim()
+        closeInbox(); goToStep(2); SoundFX.notify()
+        Toast.show('Link auto-filled!', 'Sedang verifikasi...', 2000)
+        setTimeout(() => $('b3').click(), 800)
+      })
+      $('copyFromEmail').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(magicLink); SoundFX.notify(); Toast.show('Link copied!', 'Tempel di Step 2', 2000) } catch { SoundFX.error() }
+      })
+    } else {
+      $('copyFromEmail').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(textContent || subject); SoundFX.notify(); Toast.show('Email copied!', 'Body disalin', 2000) } catch { SoundFX.error() }
+      })
+    }
+    Terminal.log('MAIL', `Opened: ${subject.slice(0, 40)}`, 'ok')
+    if (magicLink) Terminal.log('LINK', 'Magic link detected!', 'ok')
+  } catch (e) {
+    $('inboxList').innerHTML = `<button class="inbox-back" id="inboxBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>Kembali</button><div class="inbox-empty" style="color:var(--red)">Error: ${escapeHtml(e.message)}</div>`
+    $('inboxBack').addEventListener('click', () => loadInbox())
+  }
+}
+function escapeHtml(t = '') {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+}
+$('inboxModalClose').addEventListener('click', closeInbox)
+$('inboxModalOverlay').addEventListener('click', e => { if (e.target === $('inboxModalOverlay')) closeInbox() })
+$('inboxRefresh').addEventListener('click', () => { SoundFX.tap(); loadInbox() })
+$('inboxCopyEmail').addEventListener('click', async () => {
+  const em = randomEmailData?.email || emInput.value.trim()
+  if (!em) return
+  try { await navigator.clipboard.writeText(em); Toast.show('Copied!', em, 2000); SoundFX.notify() } catch {}
+})
+$('inboxToggle').addEventListener('click', () => openInbox())
+$('btnOpenInbox').addEventListener('click', () => openInbox())
+
+/* ═══ SOUND TOGGLE ═══ */
+const SoundToggle = $('soundToggle')
+function updateSoundIcon() {
+  const on = SoundFX.isEnabled()
+  SoundToggle.innerHTML = on ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6"/><path d="m17 9 6 6"/></svg>`
+  SoundToggle.classList.toggle('muted', !on)
+}
+updateSoundIcon()
+SoundToggle.addEventListener('click', () => { SoundFX.enable(!SoundFX.isEnabled()); updateSoundIcon(); if (SoundFX.isEnabled()) { SoundFX.init(); SoundFX.tap() } })
+
+/* ═══ STATS ═══ */
+fetch(`${API_BASE}/stats`).then(r => r.json()).then(j => { animateNumber($('st-total'), Number(j.total || 0)); animateNumber($('st-today'), Number(j.today || 0)) }).catch(() => { $('st-total').textContent = '0'; $('st-today').textContent = '0' })
+function animateNumber(el, target) { const duration = 1200; const start = performance.now(); function tick(now) { const p = Math.min((now - start) / duration, 1); const eased = 1 - Math.pow(1 - p, 3); el.textContent = Math.floor(target * eased).toLocaleString('id-ID'); if (p < 1) requestAnimationFrame(tick) } requestAnimationFrame(tick) }
+
+/* ═══ EMAIL MODE ═══ */
+let emailMode = 'manual'
+let randomEmailData = null
+
+$('tabManual').addEventListener('click', () => switchMode('manual'))
+$('tabRandom').addEventListener('click', () => switchMode('random'))
+function switchMode(mode) {
+  emailMode = mode
+  $('tabManual').classList.toggle('active', mode === 'manual')
+  $('tabRandom').classList.toggle('active', mode === 'random')
+  $('manualMode').classList.toggle('hide', mode !== 'manual')
+  $('randomMode').classList.toggle('hide', mode !== 'random')
+  SoundFX.tap()
+  Terminal.log('MODE', `Switched to ${mode === 'manual' ? 'Email Pribadi' : 'Email Random'}`, 'cmd')
+}
+
+/* ═══ GENERATE EMAIL ═══ */
+$('btnGenerate').addEventListener('click', async () => {
+  const btn = $('btnGenerate')
+  setBusy(btn, true, 'Generating...')
+  Terminal.show(); Terminal.startTimer(); Terminal.setStatus('Generating', 'info')
+  Terminal.log('CMD', 'GET duckzmail.com/api/verified-domains', 'cmd')
+  try {
+    const r = await fetch(`${DUCKZ_API}/verified-domains`, { headers: { 'Accept': 'application/json' } })
+    Terminal.log('NET', `Response: ${r.status}`, r.ok ? 'ok' : 'err')
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
     const j = await r.json()
-    if (j.success) { say('m1', 'link terkirim, cek email', 1); $('w-em').textContent = em; setTimeout(() => step(2), 700) }
-    else say('m1', j.message || 'gagal', 0)
-  } catch { say('m1', 'server gak nyambung', 0) }
-  busy(b, false); b.textContent = 'kirim link \u2192'
+    const domains = j.domains || []
+    if (!domains.length) throw new Error('Tidak ada domain aktif')
+    Terminal.log('OK', `Found ${domains.length} domains`, 'ok')
+    const domain = domains[Math.floor(Math.random() * domains.length)]
+    const username = 'am' + Math.random().toString(36).slice(2, 11)
+    const email = `${username}@${domain}`
+    randomEmailData = { email, username, domain }
+    $('emRandom').value = email
+    $('btnCopyEmail').classList.remove('hide')
+    $('randomHint').textContent = '✅ Siap dipakai'
+    $('randomHint').classList.add('valid')
+    Terminal.log('MAIL', `Email: ${email}`, 'ok')
+    Terminal.setStatus('Inbox ready', 'ok')
+    SoundFX.success()
+    Toast.show('Email Generated!', email, 2500)
+  } catch (e) {
+    Terminal.log('ERR', e.message, 'err'); Terminal.setStatus('Error', 'err'); SoundFX.error()
+    showMsg('m1', e.message, 'err')
+  }
+  setBusy(btn, false)
+})
+
+$('btnCopyEmail').addEventListener('click', async () => {
+  const email = $('emRandom').value
+  if (!email) return
+  try { await navigator.clipboard.writeText(email); SoundFX.notify(); Toast.show('Copied!', email, 2000); Terminal.log('CPY', `Email copied`, 'ok') } catch { SoundFX.error() }
+})
+
+/* ═══ STEP NAV ═══ */
+function goToStep(n) {
+  const current = getCurrentStep()
+  if (current === n) return
+  const currentPanel = $('p' + current)
+  if (currentPanel && current !== n) {
+    currentPanel.classList.add('fade-out')
+    setTimeout(() => currentPanel.classList.add('hide'), 300)
+    setTimeout(() => currentPanel.classList.remove('fade-out'), 400)
+  }
+  setTimeout(() => {
+    for (let i = 1; i <= 3; i++) {
+      const stepEl = $('n' + i)
+      const numEl = stepEl.querySelector('.step__num')
+      if (i === n) { $('p' + i).classList.remove('hide'); stepEl.className = 'step on'; numEl.textContent = i }
+      else if (i < n) { stepEl.className = 'step done'; numEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' }
+      else { stepEl.className = 'step'; numEl.textContent = i }
+    }
+    $('stepsProgress').style.width = ((n - 1) / 2 * 100) + '%'
+  }, 150)
+  Terminal.log('STEP', `Move to step ${n}`, 'cmd')
+}
+function getCurrentStep() { for (let i = 1; i <= 3; i++) if (!$('p' + i).classList.contains('hide')) return i; return 1 }
+
+/* ═══ MESSAGES ═══ */
+function showMsg(id, text, type) {
+  const m = $(id)
+  const cls = type === 'ok' ? 'msg--ok' : type === 'warn' ? 'msg--warn' : 'msg--err'
+  m.className = 'msg show ' + cls
+  const icon = type === 'ok' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg>' : type === 'warn' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M12 9v4"/><path d="M12 17h.01"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+  m.innerHTML = `<div class="msg__icon">${icon}</div><span>${escapeHtml(text)}</span>`
 }
 
-$('b2').onclick = () => step(1)
+/* ═══ BUSY ═══ */
+function setBusy(btn, busy, text) {
+  if (busy) { btn.dataset.orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<div class="btn__spinner"></div>${text || 'Loading...'}` }
+  else { btn.disabled = false; if (btn.dataset.orig) btn.innerHTML = btn.dataset.orig }
+}
 
-$('b3').onclick = async () => {
-  const raw = $('lk').value.trim()
-  if (!raw) return say('m2', 'link kosong', 0)
-  const b = $('b3'); busy(b, true, 'verifikasi...')
+/* ═══ STEP 1 ═══ */
+const emailHint = $('emailHint')
+const emInput = $('em')
+emInput.addEventListener('input', () => {
+  const v = emInput.value.trim()
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+  if (!v) { emailHint.textContent = 'Wajib aktif'; emailHint.classList.remove('valid') }
+  else if (valid) { emailHint.textContent = '✓ Valid'; emailHint.classList.add('valid') }
+  else { emailHint.textContent = 'Belum valid'; emailHint.classList.remove('valid') }
+})
+
+$('b1').addEventListener('click', async () => {
+  let email = ''
+  if (emailMode === 'manual') {
+    email = emInput.value.trim()
+    if (!email || !email.includes('@') || !email.includes('.')) { SoundFX.error(); return showMsg('m1', 'Email tidak valid', 'err') }
+  } else {
+    email = $('emRandom').value.trim()
+    if (!email) { SoundFX.error(); return showMsg('m1', 'Klik "Generate Email Baru" dulu', 'warn') }
+  }
+  const btn = $('b1')
+  setBusy(btn, true, 'Mengirim...')
+  Terminal.show(); Terminal.startTimer(); Terminal.setStatus('Sending', 'info')
+  Terminal.log('CMD', `POST /api/send-link`, 'cmd')
   try {
-    const r = await fetch('/api/verify-link', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ email: $('w-em').textContent, magicLink: raw }) })
+    const r = await fetch(`${API_BASE}/send-link`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) })
+    Terminal.log('NET', `Response: ${r.status}`, r.ok ? 'ok' : 'err')
+    const j = await r.json()
+    if (j.success) {
+      Terminal.log('OK', `Magic link sent`, 'ok')
+      Terminal.setStatus('Link sent', 'ok')
+      SoundFX.success()
+      showMsg('m1', 'Link berhasil dikirim! ' + (emailMode === 'manual' ? 'Cek inbox.' : 'Menunggu email...'), 'ok')
+      $('w-em').textContent = email
+      setTimeout(() => { goToStep(2); if (emailMode === 'random' && randomEmailData) startPolling() }, 900)
+    } else {
+      Terminal.log('ERR', j.message || 'Send failed', 'err'); Terminal.setStatus('Failed', 'err'); SoundFX.error()
+      showMsg('m1', j.message || 'Gagal mengirim link', 'err')
+    }
+  } catch (e) {
+    Terminal.log('ERR', 'Network error: ' + e.message, 'err'); Terminal.setStatus('Network err', 'err'); SoundFX.error()
+    showMsg('m1', 'Server tidak merespon. Coba lagi.', 'err')
+  }
+  setBusy(btn, false)
+})
+
+/* ═══ AUTO-POLL ═══ */
+let pollInterval = null
+let pollStartTime = 0
+let pollAttempts = 0
+
+function startPolling() {
+  stopPolling()
+  pollStartTime = Date.now()
+  pollAttempts = 0
+  $('pollStatus').classList.add('show')
+  $('step2Hint').textContent = 'Tunggu email masuk, kami cek otomatis.'
+  Terminal.log('POLL', 'Starting auto-poll (3s)', 'info')
+  Terminal.setStatus('Polling', 'info')
+  pollInterval = setInterval(async () => {
+    const elapsed = Math.floor((Date.now() - pollStartTime) / 1000)
+    pollAttempts++
+    $('pollTimer').textContent = elapsed + 's'
+    if (elapsed > 180) {
+      stopPolling(); $('pollText').textContent = 'Timeout. Coba kirim ulang.'
+      Terminal.log('WARN', 'Poll timeout', 'warn'); Terminal.setStatus('Timeout', 'warn')
+      showMsg('m2', 'Email tidak masuk dalam 3 menit.', 'warn')
+      return
+    }
+    try {
+      const recipient = randomEmailData.email
+      const r = await fetch(`${DUCKZ_API}/emails?recipient=${encodeURIComponent(recipient)}&limit=50`)
+      const j = await r.json()
+      if (pollAttempts % 3 === 0) Terminal.log('POLL', `Check #${pollAttempts} — ${j.emails?.length || 0} emails`, 'info')
+      if (j.emails && j.emails.length > 0) {
+        $('pollText').textContent = '📬 Email masuk! Extracting link...'
+        Terminal.log('MAIL', `Found ${j.emails.length} email(s)`, 'ok')
+        Terminal.setStatus('Email received', 'ok')
+        const msgId = j.emails[0].id
+        const detailRes = await fetch(`${DUCKZ_API}/emails/${encodeURIComponent(msgId)}/body`)
+        const detail = await detailRes.json()
+        const body = detail.text || detail.html || ''
+        const linkMatch = body.match(/https?:\/\/[^\s"<>]+alight[^\s"<>]*/i) || body.match(/https?:\/\/[^\s"<>]+oobCode[^\s"<>]+/i) || body.match(/https?:\/\/[^\s"<>]+/gi)?.[0]
+        if (linkMatch) {
+          const link = Array.isArray(linkMatch) ? linkMatch[0] : linkMatch
+          $('lk').value = link.trim()
+          stopPolling()
+          $('pollText').textContent = '✅ Link ditemukan! Auto-copy...'
+          Terminal.log('OK', 'Magic link extracted!', 'ok')
+          try { await navigator.clipboard.writeText(link.trim()); Terminal.log('CPY', 'Link auto-copied', 'ok'); Toast.show('Link Auto-Copied!', 'Sudah disalin', 2500) } catch { Terminal.log('WARN', 'Auto-copy gagal', 'warn') }
+          SoundFX.notify()
+          setTimeout(() => $('b3').click(), 1500)
+        } else { Terminal.log('WARN', 'Link tidak ke-extract', 'warn') }
+      }
+    } catch (e) { Terminal.log('POLL-ERR', e.message, 'err') }
+  }, 3000)
+}
+function stopPolling() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; Terminal.log('POLL', 'Stopped', 'info') }
+  $('pollStatus').classList.remove('show')
+}
+
+/* ═══ STEP 2 ═══ */
+$('b2').addEventListener('click', () => { SoundFX.tap(); stopPolling(); $('m2').className = 'msg'; goToStep(1) })
+const lkInput = $('lk')
+
+$('b3').addEventListener('click', async () => {
+  const raw = lkInput.value.trim()
+  if (!raw) { SoundFX.error(); return showMsg('m2', 'Link masih kosong', 'err') }
+  const btn = $('b3')
+  setBusy(btn, true, 'Verifikasi...')
+  Terminal.show(); Terminal.setStatus('Verifying', 'info'); Terminal.log('CMD', 'POST /api/verify-link', 'cmd')
+  try {
+    const r = await fetch(`${API_BASE}/verify-link`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: $('w-em').textContent, magicLink: raw }) })
+    Terminal.log('NET', `Response: ${r.status}`, r.ok ? 'ok' : 'err')
     const j = await r.json()
     if (j.success) {
       const d = j.data
-      $('r-em').textContent = d.email
-      $('r-uid').textContent = d.uid
-      $('r-ord').textContent = d.orderId || '-'
-      $('r-tok').textContent = d.idToken
+      $('r-em').textContent = d.email || '—'
+      $('r-uid').textContent = d.uid || '—'
+      $('r-ord').textContent = d.orderId || '—'
+      $('r-tok').textContent = d.idToken || '—'
+      window.__lastData = d
       window.__tok = d.idToken
-      step(3)
-    } else say('m2', j.message || 'gagal', 0)
-  } catch { say('m2', 'server gak nyambung', 0) }
-  busy(b, false); b.textContent = 'verifikasi \u2192'
-}
+      Terminal.log('OK', 'Verification success!', 'ok')
+      Terminal.setStatus('Premium Active', 'ok'); Terminal.stopTimer()
+      saveHistory({ email: d.email, ok: true, at: Date.now(), uid: d.uid, orderId: d.orderId })
+      SoundFX.levelUp(); Confetti.burst(140)
+      Toast.show('Premium Activated!', 'Akun terverifikasi 🎉')
+      stopPolling()
+      setTimeout(() => goToStep(3), 300)
+    } else {
+      Terminal.log('ERR', j.message || 'Verify failed', 'err'); Terminal.setStatus('Failed', 'err'); SoundFX.error()
+      showMsg('m2', j.message || 'Verifikasi gagal', 'err')
+      saveHistory({ email: $('w-em').textContent, ok: false, at: Date.now(), error: j.message })
+    }
+  } catch (e) {
+    Terminal.log('ERR', 'Network error: ' + e.message, 'err'); Terminal.setStatus('Network err', 'err'); SoundFX.error()
+    showMsg('m2', 'Server tidak merespon', 'err')
+  }
+  setBusy(btn, false)
+})
 
-$('b4').onclick = () => { navigator.clipboard.writeText(window.__tok || ''); $('b4').textContent = 'copied' }
-$('b5').onclick = () => { $('lk').value = ''; step(1) }
+/* ═══ STEP 3 ═══ */
+$('b4').addEventListener('click', async () => {
+  const btn = $('b4'); const orig = btn.innerHTML
+  try {
+    await navigator.clipboard.writeText(window.__tok || '')
+    SoundFX.notify(); Toast.show('Copied!', 'Token disalin', 2000)
+    btn.innerHTML = `<svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Copied!`
+  } catch { SoundFX.error(); btn.innerHTML = '✗ Gagal' }
+  setTimeout(() => { btn.innerHTML = orig }, 1600)
+})
+
+$('b5').addEventListener('click', () => { SoundFX.tap(); lkInput.value = ''; $('m2').className = 'msg'; stopPolling(); goToStep(1) })
+
+$('shareBtn').addEventListener('click', async () => {
+  const d = window.__lastData || {}
+  const text = `🎉 Premium Alight Motion Aktif!\n\n📧 ${d.email || '-'}\n🆔 ${d.uid || '-'}\n📦 ${d.orderId || '-'}\n\nAktivasi gratis di Omni Azure Asahiro!`
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Premium Alight Motion Aktif!', text }) }
+    else { await navigator.clipboard.writeText(text); Toast.show('Copied!', 'Text disalin', 2000) }
+    SoundFX.notify()
+  } catch (e) { if (e.name !== 'AbortError') SoundFX.error() }
+})
+
+$('copyAllBtn').addEventListener('click', async () => {
+  const d = window.__lastData || {}
+  const text = `Email: ${d.email || '-'}\nUID: ${d.uid || '-'}\nOrder: ${d.orderId || '-'}\nPlan: ${d.planName || '-'}\nValid: ${d.validUntil || '-'}\nToken: ${d.idToken || '-'}`
+  try { await navigator.clipboard.writeText(text); SoundFX.notify(); Toast.show('Copied All!', 'Data disalin', 2000) } catch { SoundFX.error() }
+})
+
+$('downloadBtn').addEventListener('click', () => {
+  const d = window.__lastData || {}
+  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url; a.download = `oaa-premium-${d.uid || Date.now()}.json`; a.click()
+  URL.revokeObjectURL(url)
+  SoundFX.notify(); Toast.show('Downloaded!', 'File JSON tersimpan', 2000)
+})
+
+/* ═══ HISTORY ═══ */
+const HISTORY_KEY = 'oaa_history'
+function loadHistory() { try { const d = localStorage.getItem(HISTORY_KEY); return d ? JSON.parse(d) : [] } catch { return [] } }
+function saveHistory(item) { const h = loadHistory(); h.unshift(item); try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, 10))) } catch {}; renderHistory() }
+function renderHistory() {
+  const list = $('historyList'); const history = loadHistory()
+  if (!history.length) { list.innerHTML = '<div class="history__empty">Belum ada riwayat</div>'; return }
+  list.innerHTML = history.map((item) => {
+    const time = formatTimeAgo(item.at)
+    const icon = item.ok ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+    const cls = item.ok ? 'ok' : 'fail'
+    return `<div class="history__item" data-email="${escapeHtml(item.email)}"><div class="history__icon ${cls}">${icon}</div><div class="history__info"><div class="history__email">${escapeHtml(item.email)}</div><div class="history__time">${time}</div></div></div>`
+  }).join('')
+  list.querySelectorAll('.history__item').forEach(el => {
+    el.addEventListener('click', () => {
+      const email = el.dataset.email
+      if (email) { SoundFX.tap(); switchMode('manual'); emInput.value = email; goToStep(1); Toast.show('Email diisi ulang', email, 2000) }
+    })
+  })
+}
+function formatTimeAgo(ts) {
+  const diff = Date.now() - ts; const s = Math.floor(diff / 1000)
+  if (s < 60) return `${s} detik lalu`
+  const m = Math.floor(s / 60); if (m < 60) return `${m} menit lalu`
+  const h = Math.floor(m / 60); if (h < 24) return `${h} jam lalu`
+  return `${Math.floor(h / 24)} hari lalu`
+}
+$('clearHistory').addEventListener('click', () => { SoundFX.tap(); localStorage.removeItem(HISTORY_KEY); renderHistory(); Toast.show('Cleared!', 'Riwayat dihapus', 2000) })
+renderHistory()
+
+/* ═══ CAPCUT ═══ */
+const CapCut = (() => {
+  const modal = $('capcutModalOverlay')
+  const grid = $('capcutGrid')
+  const keywordInput = $('capcutKeyword')
+  const searchBtn = $('capcutSearchBtn')
+  const msgBox = $('capcutMsg')
+  let currentTab = 'video'
+  let lastResults = []
+
+  function open() { modal.classList.add('open'); document.body.classList.add('locked'); SoundFX.tap(); setTimeout(() => keywordInput.focus(), 300) }
+  function close() { modal.classList.remove('open'); document.body.classList.remove('locked') }
+  function showMsg(text, type = 'err') {
+    msgBox.className = 'msg show msg--' + type
+    const icon = type === 'ok' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg>' : type === 'warn' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M12 9v4"/><path d="M12 17h.01"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+    msgBox.innerHTML = `<div class="msg__icon">${icon}</div><span>${escapeHtml(text)}</span>`
+  }
+  function hideMsg() { msgBox.className = 'msg' }
+
+  async function search(keyword) {
+    if (!keyword.trim()) { SoundFX.error(); showMsg('Masukkan keyword dulu', 'warn'); return }
+    searchBtn.disabled = true
+    const origHTML = searchBtn.innerHTML
+    searchBtn.innerHTML = '<div class="btn__spinner"></div>'
+    hideMsg()
+    grid.innerHTML = `<div class="capcut-loading"><div class="btn__spinner"></div><span>Mencari template "${escapeHtml(keyword)}"...</span></div>`
+    Terminal.log('CAPCUT', `Search: "${keyword}" tab=${currentTab}`, 'cmd')
+    Terminal.setStatus('CapCut search', 'info')
+
+    try {
+      const target = 'https://www.capcut.com/kep/api/getSimilarTemplates'
+      const payload = { keyword: keyword.trim(), tabs: [currentTab], language: 'en', regionCode: 'US', size: 20 }
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`
+      const r = await fetch(proxyUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      const j = await r.json()
+      const templates = j.data?.videoTemplateList?.videoTemplates || j.data?.videoTemplates || []
+      lastResults = templates.map(t => ({
+        id: t.templateId || t.id, title: t.title || '(No title)', desc: t.titleDesc || '',
+        useCount: t.useCount || 0, likeCount: t.likeCount || 0, commentCount: t.commentCount || 0,
+        duration: t.templateDuration || 0, cover: t.coverUrl || t.cover || '', video: t.videoUrl || t.video || '',
+        fragment: t.fragmentId || t.templateId, isImage: currentTab === 'image'
+      }))
+      render()
+      if (lastResults.length) { SoundFX.success(); showMsg(`Ditemukan ${lastResults.length} template!`, 'ok'); Terminal.setStatus('CapCut OK', 'ok') }
+      else { SoundFX.error(); showMsg('Tidak ada template ditemukan', 'warn') }
+    } catch (e) {
+      Terminal.log('ERR', 'CapCut: ' + e.message, 'err'); Terminal.setStatus('CapCut err', 'err'); SoundFX.error()
+      showMsg('Gagal: ' + e.message, 'err')
+      grid.innerHTML = `<div class="capcut-empty">⚠️ Gagal memuat template<br><span style="font-size:10.5px;opacity:0.75">${escapeHtml(e.message)}</span></div>`
+    }
+    searchBtn.disabled = false
+    searchBtn.innerHTML = origHTML
+  }
+
+  function formatNum(n) { n = Number(n) || 0; if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return String(n) }
+  function fmtDur(s) { s = Number(s) || 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` }
+
+  function render() {
+    if (!lastResults.length) { grid.innerHTML = `<div class="capcut-empty">Tidak ada template</div>`; return }
+    grid.innerHTML = lastResults.map((t, i) => `
+      <div class="capcut-card" data-idx="${i}">
+        <div class="capcut-card__thumb">
+          ${t.cover ? `<img src="${escapeHtml(t.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--txt-4)">No image</div>`}
+          ${t.duration ? `<div class="capcut-card__dur">${fmtDur(t.duration)}</div>` : ''}
+          <div class="capcut-card__badge">${t.isImage ? 'IMG' : 'VID'}</div>
+        </div>
+        <div class="capcut-card__body">
+          <div class="capcut-card__title">${escapeHtml(t.title)}</div>
+          <div class="capcut-card__stats">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>${formatNum(t.useCount)}</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${formatNum(t.likeCount)}</span>
+          </div>
+          <div class="capcut-card__actions">
+            <button data-act="open" data-idx="${i}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Use</button>
+            <button data-act="copy" data-idx="${i}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+          </div>
+        </div>
+      </div>
+    `).join('')
+    grid.querySelectorAll('[data-act]').forEach(el => {
+      el.addEventListener('click', async e => {
+        e.stopPropagation()
+        const t = lastResults[Number(el.dataset.idx)]
+        const link = t.fragment ? `https://www.capcut.com/template-detail/${t.fragment}` : (t.id ? `https://www.capcut.com/template-detail/${t.id}` : '')
+        if (el.dataset.act === 'open') { if (link) { SoundFX.tap(); window.open(link, '_blank', 'noopener'); Terminal.log('CAPCUT', `Opened: ${t.title.slice(0, 40)}`, 'ok') } }
+        else { try { await navigator.clipboard.writeText(link || t.video || t.title); SoundFX.notify(); Toast.show('Link copied!', t.title.slice(0, 40), 2000) } catch { SoundFX.error() } }
+      })
+    })
+  }
+
+  document.querySelectorAll('.capcut-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.capcut-tab').forEach(t => t.classList.remove('active'))
+      tab.classList.add('active')
+      currentTab = tab.dataset.tab
+      SoundFX.tap()
+      if (keywordInput.value.trim() && lastResults.length) search(keywordInput.value)
+    })
+  })
+
+  searchBtn.addEventListener('click', () => search(keywordInput.value))
+  keywordInput.addEventListener('keypress', e => { if (e.key === 'Enter') search(keywordInput.value) })
+  $('capcutModalClose').addEventListener('click', close)
+  modal.addEventListener('click', e => { if (e.target === modal) close() })
+
+  return { open, close }
+})()
+$('menuCapcut').addEventListener('click', () => { closeDrawer(); setTimeout(() => CapCut.open(), 250) })
+
+/* ═══ APK BUILDER ═══ */
+const ApkBuilder = (() => {
+  const modal = $('apkModalOverlay')
+  const buildBtn = $('apkBuildBtn')
+  const progressEl = $('apkProgress')
+  const progressFill = $('apkProgressFill')
+  const progressPct = $('apkProgressPct')
+  const progressLabel = $('apkProgressLabel')
+  const resultEl = $('apkResult')
+  const msgBox = $('apkMsg')
+  let orientation = 'auto', splashType = 'image', lastBuildUrl = '', progressTimer = null
+
+  function open() { modal.classList.add('open'); document.body.classList.add('locked'); SoundFX.tap(); setTimeout(() => $('apkUrl').focus(), 300) }
+  function close() { modal.classList.remove('open'); document.body.classList.remove('locked'); stopProgress() }
+  function showMsg(text, type = 'err') {
+    msgBox.className = 'msg show msg--' + type
+    const icon = type === 'ok' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg>' : type === 'warn' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M12 9v4"/><path d="M12 17h.01"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+    msgBox.innerHTML = `<div class="msg__icon">${icon}</div><span>${escapeHtml(text)}</span>`
+  }
+  function hideMsg() { msgBox.className = 'msg' }
+  function setOption(group, val) { document.querySelectorAll(`#${group} .apk-option`).forEach(b => b.classList.toggle('on', b.dataset.val === val)) }
+  $('apkOrientation').addEventListener('click', e => { const b = e.target.closest('.apk-option'); if (!b) return; orientation = b.dataset.val; setOption('apkOrientation', orientation); SoundFX.tap() })
+  $('apkSplash').addEventListener('click', e => { const b = e.target.closest('.apk-option'); if (!b) return; splashType = b.dataset.val; setOption('apkSplash', splashType); SoundFX.tap() })
+
+  function setProgress(pct, label, activeStep) {
+    progressFill.style.width = pct + '%'
+    progressPct.textContent = Math.floor(pct) + '%'
+    if (label) progressLabel.textContent = label
+    if (activeStep != null) {
+      document.querySelectorAll('#apkProgressSteps .apk-progress__step').forEach((el, i) => {
+        el.classList.remove('active', 'done')
+        if (i + 1 < activeStep) el.classList.add('done')
+        else if (i + 1 === activeStep) el.classList.add('active')
+      })
+    }
+  }
+  function startProgress() {
+    progressEl.classList.add('show'); resultEl.classList.remove('show')
+    setProgress(0, 'Menyiapkan build...', 1)
+    let pct = 0
+    progressTimer = setInterval(() => {
+      if (pct < 90) {
+        pct += Math.random() * 4 + 1
+        if (pct > 90) pct = 90
+        let step = 1, label = 'Validasi input & proxy pool'
+        if (pct > 15) { step = 2; label = 'Upload form & icon ke server' }
+        if (pct > 35) { step = 3; label = 'Build APK di server (60-120s)' }
+        setProgress(pct, label, step)
+      }
+    }, 900)
+  }
+  function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null } }
+
+  function validateForm() {
+    const url = $('apkUrl').value.trim()
+    const name = $('apkName').value.trim()
+    const pkg = $('apkPkg').value.trim()
+    if (!url || !/^https?:\/\//i.test(url)) return { ok: false, msg: 'URL harus diawali http:// atau https://' }
+    if (!name || name.length < 2) return { ok: false, msg: 'Nama app minimal 2 karakter' }
+    if (!pkg || !/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/i.test(pkg)) return { ok: false, msg: 'Package name format: com.example.app' }
+    return { ok: true, data: { url, appName: name, packageName: pkg, versionName: $('apkVer').value.trim() || '1.0', versionCode: $('apkVerCode').value.trim() || '1', icon: $('apkIcon').value.trim() || undefined, orientation, splashType } }
+  }
+
+  function fmtSize(bytes) {
+    const n = Number(bytes) || 0
+    if (n >= 1024 * 1024) return (n / 1024 / 1024).toFixed(2) + ' MB'
+    if (n >= 1024) return (n / 1024).toFixed(1) + ' KB'
+    return n + ' B'
+  }
+
+  async function build() {
+    const check = validateForm()
+    if (!check.ok) { SoundFX.error(); showMsg(check.msg, 'err'); return }
+    hideMsg()
+    const btn = buildBtn; const origHTML = btn.innerHTML
+    btn.disabled = true; btn.innerHTML = '<div class="btn__spinner"></div>Building APK...'
+    startProgress()
+    Terminal.show(); Terminal.setStatus('Building APK', 'info')
+    Terminal.log('APK', `Building "${check.data.appName}"`, 'cmd')
+    try {
+      const r = await fetch(`${API_BASE}/web2apk`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(check.data) })
+      const j = await r.json()
+      if (j.success) {
+        stopProgress()
+        setProgress(100, 'Selesai!', 4)
+        document.querySelectorAll('#apkProgressSteps .apk-progress__step').forEach(el => { el.classList.remove('active'); el.classList.add('done') })
+        lastBuildUrl = j.downloadUrl || (j.data && j.data.downloadUrl) || ''
+        const buildId = j.buildId || (j.data && j.data.buildId) || '—'
+        const fileName = j.fileName || (j.data && j.data.fileName) || 'app.apk'
+        const size = j.size || (j.data && j.data.size) || 0
+        $('apkResultFile').textContent = fileName
+        $('apkResultSize').textContent = fmtSize(size)
+        $('apkResultId').textContent = buildId
+        resultEl.classList.add('show')
+        SoundFX.levelUp(); Confetti.burst(100)
+        Toast.show('APK Ready!', fileName, 3000)
+        showMsg('Build sukses! Klik Download APK.', 'ok')
+        Terminal.log('OK', `APK built: ${fileName}`, 'ok')
+        Terminal.setStatus('APK Ready', 'ok')
+      } else { throw new Error(j.message || 'Build failed') }
+    } catch (e) {
+      stopProgress(); setProgress(0, 'Gagal', 0); progressEl.classList.remove('show'); SoundFX.error()
+      showMsg('Build gagal: ' + e.message, 'err')
+      Terminal.log('ERR', 'APK: ' + e.message, 'err'); Terminal.setStatus('APK Failed', 'err')
+    }
+    btn.disabled = false; btn.innerHTML = origHTML
+  }
+  buildBtn.addEventListener('click', build)
+  $('apkDownloadBtn').addEventListener('click', () => {
+    if (!lastBuildUrl) return; SoundFX.tap()
+    const a = document.createElement('a'); a.href = lastBuildUrl; a.target = '_blank'; a.rel = 'noopener'; a.click()
+  })
+  $('apkCopyLinkBtn').addEventListener('click', async () => {
+    if (!lastBuildUrl) return
+    try { await navigator.clipboard.writeText(lastBuildUrl); SoundFX.notify(); Toast.show('Link copied!', 'Link disalin', 2000) } catch { SoundFX.error() }
+  })
+  $('apkModalClose').addEventListener('click', close)
+  modal.addEventListener('click', e => { if (e.target === modal) close() })
+  return { open, close }
+})()
+$('menuApkBuilder').addEventListener('click', () => { closeDrawer(); setTimeout(() => ApkBuilder.open(), 250) })
+
+/* ═══ YOUTUBE MUSIC (HARDCODED — NO BACKEND) ═══ */
+const Music = (() => {
+  const modal = $('musicModalOverlay')
+  const input = $('musicQuery')
+  const btn = $('musicSearchBtn')
+  const msgBox = $('musicMsg')
+  const player = $('musicPlayer')
+  let currentAudio = ''
+
+  function open() { modal.classList.add('open'); document.body.classList.add('locked'); SoundFX.tap(); setTimeout(() => input.focus(), 300) }
+  function close() { modal.classList.remove('open'); document.body.classList.remove('locked'); const audio = $('musicAudio'); if (audio) audio.pause() }
+  function showMsg(text, type = 'err') { msgBox.className = 'msg show msg--' + type; msgBox.innerHTML = `<span>${escapeHtml(text)}</span>` }
+  function hideMsg() { msgBox.className = 'msg' }
+
+  async function search(query) {
+    if (!query.trim()) { SoundFX.error(); showMsg('Masukkan judul atau URL', 'warn'); return }
+    btn.disabled = true
+    const orig = btn.innerHTML
+    btn.innerHTML = '<div class="btn__spinner"></div>'
+    hideMsg()
+    player.classList.remove('show')
+    Terminal.log('MUSIC', `Search: "${query}"`, 'cmd')
+    Terminal.setStatus('Music search', 'info')
+
+    const apiUrl = `https://api.ikyyxd.my.id/search/ytplayv2?q=${encodeURIComponent(query.trim())}`
+
+    try {
+      let data
+      try {
+        const r = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } })
+        data = await r.json()
+      } catch {
+        Terminal.log('WARN', 'Direct blocked, trying CORS proxy...', 'warn')
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`
+        const r2 = await fetch(proxyUrl)
+        data = await r2.json()
+      }
+
+      if (!data.status) throw new Error('Lagu tidak ditemukan')
+      const d = data.result
+
+      $('musicThumbImg').src = d.thumbnail
+      $('musicTitle').textContent = d.title
+      $('musicDuration').textContent = `${Math.floor(d.duration / 60)}:${String(d.duration % 60).padStart(2, '0')}`
+      $('musicSource').textContent = d.source || 'youtube'
+
+      const audio = $('musicAudio')
+      audio.src = d.audio?.url || d.audio
+      currentAudio = audio.src
+      player.classList.add('show')
+      SoundFX.success()
+      Toast.show('Music Found!', d.title.slice(0, 40), 2500)
+      Terminal.log('OK', `Found: ${d.title.slice(0, 40)}`, 'ok')
+      Terminal.setStatus('Music Ready', 'ok')
+      audio.play().catch(() => {})
+    } catch (e) {
+      SoundFX.error()
+      showMsg('Gagal: ' + e.message, 'err')
+      Terminal.log('ERR', 'Music: ' + e.message, 'err')
+    }
+    btn.disabled = false; btn.innerHTML = orig
+  }
+
+  btn.addEventListener('click', () => search(input.value))
+  input.addEventListener('keypress', e => { if (e.key === 'Enter') search(input.value) })
+  $('musicDownload').addEventListener('click', () => {
+    if (!currentAudio) return
+    const a = document.createElement('a'); a.href = currentAudio; a.target = '_blank'; a.rel = 'noopener'; a.click()
+    SoundFX.tap()
+  })
+  $('musicCopy').addEventListener('click', async () => {
+    if (!currentAudio) return
+    try { await navigator.clipboard.writeText(currentAudio); SoundFX.notify(); Toast.show('Copied!', 'Link audio disalin', 2000) } catch { SoundFX.error() }
+  })
+  $('musicModalClose').addEventListener('click', close)
+  modal.addEventListener('click', e => { if (e.target === modal) close() })
+  return { open, close }
+})()
+$('menuMusic').addEventListener('click', () => { closeDrawer(); setTimeout(() => Music.open(), 250) })
+
+/* ═══ AI IMAGE (HARDCODED — NO BACKEND) ═══ */
+const AIImage = (() => {
+  const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCwlO+boC6cwRo3UfXVBadaYwcX
+0zKS2fuVNY2qZ0dgwb1NJ+/Q9FeAosL4ONiosD71on3PVYqRUlL5045mvH2K9i8b
+AFVMEip7E6RMK6tKAAif7xzZrXnP1GZ5Rijtqdgwh+YmzTo39cuBCsZqK9oEoeQ3
+r/myG9S+9cR5huTuFQIDAQAB
+-----END PUBLIC KEY-----`;
+  const APP_ID = 'aifaceswap';
+  const U_ID = '1H5tRtzsBkqXcaJ';
+  const FN_NAME = 'demo-ai-body-v1';
+  const BRAND_KEY = '8f3f0c7387123ae0';
+  const THEME_VERSION = '83EmcUoQTUv50LhNx0VrdcK8rcGexcP35FcZDcpgWsAXEyO4xqL5shCY6sFIWB2Q';
+
+  const modal = $('aiModalOverlay')
+  const promptEl = $('aiPrompt')
+  const negEl = $('aiNegative')
+  const genBtn = $('aiGenerateBtn')
+  const grid = $('aiImageGrid')
+  const msgBox = $('aiMsg')
+  let progressInterval = null
+
+  function genRandom(len) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let s = ''
+    for (let i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length))
+    return s
+  }
+
+  function aesenc(data, key) {
+    const k = CryptoJS.enc.Utf8.parse(key)
+    return CryptoJS.AES.encrypt(data, k, { iv: k, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString()
+  }
+
+  function rsaenc(data) {
+    const enc = new JSEncrypt()
+    enc.setPublicKey(PUBLIC_KEY)
+    const result = enc.encrypt(data)
+    if (!result) throw new Error('RSA encrypt failed')
+    return result
+  }
+
+  function genCryptoHeaders(type, fp = null) {
+    const d = new Date()
+    const n = Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()) / 1000)
+    const r = (crypto.randomUUID ? crypto.randomUUID() : genRandom(36))
+    const i = genRandom(16)
+    const fingerPrint = fp || Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
+    const s = rsaenc(i)
+    const signStr = (type === 'upload') ? `${APP_ID}:${r}:${s}` : `${APP_ID}:${U_ID}:${n}:${r}:${s}`
+    return {
+      'fp': fingerPrint,
+      'fp1': aesenc(`${APP_ID}:${fingerPrint}`, i),
+      'x-guide': s,
+      'x-sign': aesenc(signStr, i),
+      'x-code': Date.now().toString()
+    }
+  }
+
+  function open() { modal.classList.add('open'); document.body.classList.add('locked'); SoundFX.tap(); setTimeout(() => promptEl.focus(), 300) }
+  function close() { modal.classList.remove('open'); document.body.classList.remove('locked'); if (progressInterval) { clearInterval(progressInterval); progressInterval = null } }
+  function showMsg(text, type = 'err') { msgBox.className = 'msg show msg--' + type; msgBox.innerHTML = `<span>${escapeHtml(text)}</span>` }
+  function hideMsg() { msgBox.className = 'msg' }
+
+  document.querySelectorAll('.ai-preset').forEach(p => {
+    p.addEventListener('click', () => { promptEl.value = p.dataset.prompt; SoundFX.tap() })
+  })
+
+  function startLoading() {
+    grid.innerHTML = `<div class="ai-loading"><div class="btn__spinner" style="width:26px;height:26px;border-width:3px;border-color:var(--acc);border-top-color:transparent"></div><div>Generating image...</div><div class="ai-loading__progress"><div class="ai-loading__fill" id="aiLoadingFill"></div></div><div style="font-size:10.5px;color:var(--txt-4);font-family:var(--mono)" id="aiLoadingPct">0%</div></div>`
+    let pct = 0
+    progressInterval = setInterval(() => {
+      if (pct < 92) {
+        pct += Math.random() * 3 + 0.5
+        if (pct > 92) pct = 92
+        const fill = $('aiLoadingFill'); const pctEl = $('aiLoadingPct')
+        if (fill) fill.style.width = pct + '%'
+        if (pctEl) pctEl.textContent = Math.floor(pct) + '%'
+      }
+    }, 700)
+  }
+  function stopLoading() { if (progressInterval) { clearInterval(progressInterval); progressInterval = null } }
+
+  async function createJob(prompt, negPrompt) {
+    const headers = genCryptoHeaders('create')
+    const payload = {
+      fn_name: FN_NAME, call_type: 3, data: '',
+      input: { cfg: 7, lora: [], model: 'AbsoluteReality_v1.8.1.safetensors', negative_prompt: negPrompt || '(worst quality, low quality:1.4), deformed, ugly, bad anatomy, extra limbs', prompt: prompt, request_from: 9 },
+      origin_from: BRAND_KEY, request_from: 9
+    }
+    const r = await fetch('https://app-v1.live3d.io/aitools/of/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'theme-version': THEME_VERSION, ...headers },
+      body: JSON.stringify(payload)
+    })
+    const j = await r.json()
+    if (j.code !== 200) throw new Error(j.message || 'Failed to create job')
+    return { taskId: j.data.task_id, fp: headers.fp }
+  }
+
+  async function checkJob(taskId, fp) {
+    const headers = genCryptoHeaders('check', fp)
+    const payload = { task_id: taskId, fn_name: FN_NAME, call_type: 3, request_from: 9, origin_from: BRAND_KEY }
+    const r = await fetch('https://app-v1.live3d.io/aitools/of/check-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'theme-version': THEME_VERSION, ...headers },
+      body: JSON.stringify(payload)
+    })
+    const j = await r.json()
+    return j.data
+  }
+
+  async function generate() {
+    const prompt = promptEl.value.trim()
+    if (!prompt) { SoundFX.error(); showMsg('Prompt wajib diisi', 'err'); return }
+    genBtn.disabled = true
+    const orig = genBtn.innerHTML
+    genBtn.innerHTML = '<div class="btn__spinner"></div>Generating...'
+    hideMsg(); startLoading()
+    Terminal.log('AI', `Generate: "${prompt.slice(0, 50)}..."`, 'cmd')
+    Terminal.setStatus('AI generating', 'info')
+    const startTime = Date.now()
+
+    try {
+      const { taskId, fp } = await createJob(prompt, negEl.value.trim())
+      Terminal.log('AI', `Task: ${taskId}`, 'info')
+
+      let result = null
+      let attempts = 0
+      while (attempts < 30) {
+        await new Promise(r => setTimeout(r, 5000))
+        result = await checkJob(taskId, fp)
+        attempts++
+        Terminal.log('AI', `Check #${attempts} — status ${result?.status}`, 'info')
+        if (result?.status === 2) break
+        if (result?.status === 3) throw new Error('Task failed / safety filter block')
+      }
+
+      if (!result || result.status !== 2) throw new Error('Timeout, coba lagi')
+
+      stopLoading()
+      const imageUrl = 'https://temp.live3d.io/' + result.result_image
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+
+      grid.innerHTML = `<div class="ai-image-card"><img src="${imageUrl}" alt="AI generated" loading="lazy"><div class="ai-image-card__actions"><button class="btn btn--primary" id="aiDownload"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button><button class="btn btn--secondary" id="aiRegen"><svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>Regen</button></div></div>`
+
+      $('aiDownload').addEventListener('click', () => { const a = document.createElement('a'); a.href = imageUrl; a.download = `oaa-ai-${Date.now()}.png`; a.target = '_blank'; a.rel = 'noopener'; a.click(); SoundFX.tap() })
+      $('aiRegen').addEventListener('click', () => generate())
+
+      SoundFX.levelUp(); Confetti.burst(80)
+      Toast.show('Image Ready!', `${elapsed}s`, 2500)
+      showMsg(`Berhasil dalam ${elapsed}s`, 'ok')
+      Terminal.log('OK', `AI image generated in ${elapsed}s`, 'ok')
+      Terminal.setStatus('AI Ready', 'ok')
+    } catch (e) {
+      stopLoading()
+      grid.innerHTML = `<div class="ai-loading" style="color:var(--red)">Gagal: ${escapeHtml(e.message)}</div>`
+      SoundFX.error(); showMsg(e.message, 'err')
+      Terminal.log('ERR', 'AI: ' + e.message, 'err'); Terminal.setStatus('AI Failed', 'err')
+    }
+    genBtn.disabled = false; genBtn.innerHTML = orig
+  }
+
+  genBtn.addEventListener('click', generate)
+  $('aiModalClose').addEventListener('click', close)
+  modal.addEventListener('click', e => { if (e.target === modal) close() })
+  return { open, close }
+})()
+$('menuAI').addEventListener('click', () => { closeDrawer(); setTimeout(() => AIImage.open(), 250) })
+
+/* ═══ FEATURE TILES CLICK ═══ */
+document.querySelectorAll('.feature-tile[data-open]').forEach(tile => {
+  tile.addEventListener('click', () => {
+    SoundFX.tap()
+    const target = tile.dataset.open
+    const map = {
+      am: () => document.querySelector('.steps-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      capcut: () => CapCut.open(),
+      apk: () => ApkBuilder.open(),
+      music: () => Music.open(),
+      ai: () => AIImage.open(),
+      inbox: () => openInbox()
+    }
+    if (map[target]) map[target]()
+  })
+})
+
+/* ═══ SHORTCUTS ═══ */
+document.addEventListener('keydown', (e) => {
+  const mod = e.ctrlKey || e.metaKey
+  if (mod && e.key === 'k') { e.preventDefault(); switchMode('manual'); emInput.focus(); SoundFX.focus() }
+  if (mod && e.key === 'g') { e.preventDefault(); switchMode('random'); $('btnGenerate').click() }
+  if (mod && e.key === 'm') { e.preventDefault(); if (drawer.classList.contains('open')) closeDrawer(); else openDrawer() }
+  if (mod && e.key === 't') { e.preventDefault(); Terminal.toggle() }
+  if (mod && e.key === 'i') { e.preventDefault(); if (inboxModal.classList.contains('open')) closeInbox(); else openInbox() }
+  if (mod && e.key === 'c') { e.preventDefault(); if ($('capcutModalOverlay').classList.contains('open')) CapCut.close(); else { closeDrawer(); setTimeout(() => CapCut.open(), 200) } }
+  if (mod && e.key === 'a') { e.preventDefault(); if ($('apkModalOverlay').classList.contains('open')) ApkBuilder.close(); else { closeDrawer(); setTimeout(() => ApkBuilder.open(), 200) } }
+  if (mod && e.key === 'p') { e.preventDefault(); if ($('musicModalOverlay').classList.contains('open')) Music.close(); else { closeDrawer(); setTimeout(() => Music.open(), 200) } }
+  if (mod && e.key === 'y') { e.preventDefault(); if ($('aiModalOverlay').classList.contains('open')) AIImage.close(); else { closeDrawer(); setTimeout(() => AIImage.open(), 200) } }
+  if (e.key === 'Escape') {
+    if (modal.classList.contains('open')) return closeModal()
+    if (inboxModal.classList.contains('open')) return closeInbox()
+    if ($('capcutModalOverlay').classList.contains('open')) return CapCut.close()
+    if ($('apkModalOverlay').classList.contains('open')) return ApkBuilder.close()
+    if ($('musicModalOverlay').classList.contains('open')) return Music.close()
+    if ($('aiModalOverlay').classList.contains('open')) return AIImage.close()
+    if (drawer.classList.contains('open')) return closeDrawer()
+    if (getCurrentStep() === 2) $('b2').click()
+  }
+  if (mod && e.key === 'Enter') { e.preventDefault(); const step = getCurrentStep(); if (step === 1) $('b1').click(); else if (step === 2) $('b3').click() }
+})
+
+/* ═══ SOUND BINDING ═══ */
+setTimeout(() => {
+  document.querySelectorAll('.btn, .step, .brand, .icon-btn, .email-tab, .drawer__item, .history__item, .inbox-item, .inbox-back, .capcut-tab, .apk-option, .ai-preset, .feature-tile, .tutorial-step').forEach(el => {
+    el.addEventListener('pointerdown', () => SoundFX.tap(), { passive: true })
+    el.addEventListener('mouseenter', () => SoundFX.hover(), { passive: true })
+  })
+  document.querySelectorAll('input, textarea').forEach(inp => {
+    inp.addEventListener('focus', () => SoundFX.focus())
+    inp.addEventListener('keydown', (e) => { if (e.key.length === 1 || e.key === 'Backspace') SoundFX.key() })
+  })
+}, 1500)
+
+emInput.addEventListener('keypress', e => { if (e.key === 'Enter') $('b1').click() })
+lkInput.addEventListener('keypress', e => { if (e.key === 'Enter') $('b3').click() })
 </script>
 </body>
 </html>
